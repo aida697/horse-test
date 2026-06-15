@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kazbegi Premium Horse Tours</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -24,7 +24,7 @@
             --radius-pill: 100px;
             --shadow-sm: 0 4px 20px rgba(24, 34, 27, 0.02);
             --shadow-lg: 0 20px 50px rgba(9, 11, 9, 0.07);
-            --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
         * { 
@@ -39,7 +39,20 @@
             background-color: var(--bg-light); 
             color: var(--text-main); 
             overflow-x: hidden; 
-            height: 100vh; 
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+
+        /* Enforce absolute scroll freezing on mobile devices when modals/popups open */
+        body.scroll-locked {
+            overflow: hidden !important;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        html {
+            height: -webkit-fill-available;
         }
         
         h1, h2, h3, h4, .syne-font { 
@@ -48,156 +61,142 @@
             letter-spacing: -0.02em;
         }
 
-        /* RTL support for Arabic */
         body.rtl { direction: rtl; text-align: right; }
         body.rtl .metric-item svg, body.rtl .gear-card svg { margin-left: 10px; margin-right: 0; }
         body.rtl .card-price-tag { right: auto; left: 24px; }
         body.rtl .chat-back-btn svg { transform: rotate(180deg); }
         body.rtl .msg-meta { text-align: left; justify-content: flex-start; }
 
-        /* --- IMMERSIVE ATELIER SPLASH SCREEN --- */
+        /* --- SPLASH SCREEN --- */
         #splash-screen { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(rgba(9, 11, 9, 0.4), rgba(9, 11, 9, 0.95)), url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1500') center/cover no-repeat; 
             z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.6s ease, visibility 0.6s; 
         }
-        .splash-brand { text-align: center; color: white; margin-bottom: 48px; }
-        .splash-brand h1 { font-size: 3rem; font-weight: 800; tracking: -0.05em; line-height: 0.9; }
-        .splash-brand p { color: var(--accent); font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase; margin-top: 14px; font-weight: 700; }
+        .splash-brand { text-align: center; color: white; margin-bottom: 42px; padding: 0 20px; }
+        .splash-brand h1 { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+        .splash-brand p { color: var(--accent); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 14px; font-weight: 700; }
         
-        .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 88%; max-width: 350px; }
-        .lang-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 22px; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius-premium); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); transition: var(--transition-smooth); }
-        .lang-card:hover, .lang-card:active { background: white; color: var(--bg-dark); transform: translateY(-2px); }
-        .lang-card span { font-size: 1.5rem; }
+        .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; max-width: 340px; }
+        .lang-card { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.15); color: white; padding: 18px; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius-premium); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); transition: var(--transition-smooth); }
+        .lang-card:active { background: white; color: var(--bg-dark); }
+        .lang-card span { font-size: 1.6rem; }
 
         /* --- HOME EDITORIAL LAYOUT --- */
-        #main-content { display: none; opacity: 0; transition: opacity 0.5s ease; height: 100%; overflow-y: auto; }
-        .hero-header { position: relative; height: 50vh; width: 100%; overflow: hidden; display: flex; align-items: flex-end; padding: 48px 32px; background: var(--bg-dark); }
-        .hero-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.65; transform: scale(1.05); }
+        #main-content { display: none; opacity: 0; transition: opacity 0.5s ease; width: 100%; }
+        .hero-header { position: relative; height: 45vh; width: 100%; overflow: hidden; display: flex; align-items: flex-end; padding: 32px 24px; background: var(--bg-dark); }
+        .hero-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.65; }
         .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(9,11,9,0) 20%, rgba(9,11,9,0.95)); z-index: 1; }
         .hero-text { position: relative; z-index: 2; color: white; }
-        .hero-text h2 { font-size: 2.8rem; line-height: 0.95; font-weight: 800; max-width: 400px; }
-        .hero-text p { color: var(--accent); font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+        .hero-text h2 { font-size: 2.2rem; line-height: 1; font-weight: 800; max-width: 320px; }
+        .hero-text p { color: var(--accent); font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
         
-        .catalog-container { padding: 48px 24px; max-width: 600px; margin: 0 auto; }
-        .section-header { font-size: 0.75rem; margin-bottom: 32px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+        .catalog-container { padding: 32px 20px; max-width: 600px; margin: 0 auto; }
+        .section-header { font-size: 0.75rem; margin-bottom: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
         .section-header::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
         
-        /* PREMIUM CARDS ARCHITECTURE */
-        .premium-tour-card { background: var(--surface); border-radius: var(--radius-premium); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 32px; border: 1px solid var(--border); cursor: pointer; transition: var(--transition-smooth); }
-        .premium-tour-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .card-img-wrapper { position: relative; height: 280px; overflow: hidden; background: #111; }
-        .card-img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition-smooth); }
-        .premium-tour-card:hover .card-img { transform: scale(1.05); opacity: 0.9; }
-        .card-price-tag { position: absolute; top: 24px; right: 24px; background: rgba(9, 11, 9, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--accent); padding: 10px 22px; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
-        .card-body { padding: 28px; display: flex; justify-content: space-between; align-items: center; }
-        .card-body h3 { font-size: 1.5rem; color: var(--primary); font-weight: 700; }
-        .card-arrow { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--primary); transition: var(--transition-smooth); }
-        .premium-tour-card:hover .card-arrow { background: var(--primary); color: white; border-color: var(--primary); }
+        /* PREMIUM CARDS */
+        .premium-tour-card { background: var(--surface); border-radius: var(--radius-premium); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 24px; border: 1px solid var(--border); cursor: pointer; transition: var(--transition-smooth); }
+        .card-img-wrapper { position: relative; height: 240px; overflow: hidden; background: #111; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; }
+        .card-price-tag { position: absolute; top: 16px; right: 16px; background: rgba(9, 11, 9, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--accent); padding: 8px 18px; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1); }
+        .card-body { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .card-body h3 { font-size: 1.3rem; color: var(--primary); font-weight: 700; padding-right: 12px; }
+        .card-arrow { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
 
         /* PARAMETER MATRIX GRID */
-        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .metric-item { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-main); font-weight: 600; background: var(--bg-light); padding: 14px 18px; border-radius: 16px; border: 1px solid var(--border); }
-        .metric-item svg { width: 18px; height: 18px; fill: none; stroke: var(--text-muted); stroke-width: 2; flex-shrink: 0; }
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .metric-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--text-main); font-weight: 600; background: var(--bg-light); padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); }
+        .metric-item svg { width: 16px; height: 16px; fill: none; stroke: var(--text-muted); stroke-width: 2; flex-shrink: 0; }
 
-        /* --- CLOTHING-STYLE BOTTOM DESIGN MODAL --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9,11,9,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); }
+        /* --- DESIGN BOTTOM MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9,11,9,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .bottom-modal { position: fixed; bottom: 0; left: 0; width: 100%; height: 88vh; background: var(--surface); border-top-left-radius: 32px; border-top-right-radius: 32px; z-index: 1001; transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -20px 60px rgba(0,0,0,0.15); }
+        
+        .bottom-modal { position: fixed; bottom: 0; left: 0; width: 100%; height: 88vh; height: calc(var(--vh, 1vh) * 88); background: var(--surface); border-top-left-radius: 28px; border-top-right-radius: 28px; z-index: 1001; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; }
         .bottom-modal.active { transform: translateY(0); }
-        .modal-handle { width: 48px; height: 5px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: 18px auto 24px auto; flex-shrink: 0; }
-        .modal-content-scroll { overflow-y: auto; padding: 0 32px 160px 32px; flex-grow: 1; max-width: 650px; margin: 0 auto; w-full: 100%; }
-        .modal-hero-img { width: 100%; height: 260px; border-radius: var(--radius-premium); object-fit: cover; margin-bottom: 28px; }
-        .modal-description { font-size: 0.95rem; line-height: 1.65; color: var(--text-muted); margin: 28px 0; font-weight: 400; }
+        .modal-handle { width: 40px; height: 4px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: 12px auto; flex-shrink: 0; }
         
-        .gear-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .modal-content-scroll { overflow-y: auto; padding: 0 20px 140px 20px; flex-grow: 1; width: 100%; max-width: 600px; margin: 0 auto; -webkit-overflow-scrolling: touch; }
+        .modal-hero-img { width: 100%; height: 200px; border-radius: var(--radius-premium); object-fit: cover; margin-bottom: 20px; }
+        .modal-description { font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin: 20px 0; font-weight: 400; }
+        
+        .gear-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
         .gear-section-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
-        .gear-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
-        .gear-card { background: var(--bg-light); border: 1px solid var(--border); padding: 16px 20px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 12px; color: var(--text-main); }
-        .gear-card svg { width: 18px; height: 18px; stroke: var(--accent); stroke-width: 2.5; fill: none; }
+        .gear-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+        .gear-card { background: var(--bg-light); border: 1px solid var(--border); padding: 12px 14px; border-radius: 14px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .gear-card svg { width: 16px; height: 16px; stroke: var(--accent); stroke-width: 2.5; fill: none; flex-shrink: 0; }
 
-        .fixed-modal-footer { position: absolute; bottom: 0; left: 0; width: 100%; padding: 32px; background: linear-gradient(to top, var(--surface) 80%, rgba(255,255,255,0)); display: flex; justify-content: center; }
-        .action-btn { width: 100%; max-width: 580px; background: var(--primary); color: white; border: none; padding: 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-premium); cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: var(--shadow-lg); transition: var(--transition-smooth); letter-spacing: 1px; }
-        .action-btn:hover { background: var(--bg-dark); }
-        .action-btn:active { transform: scale(0.98); }
+        .fixed-modal-footer { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, var(--surface) 75%, rgba(255,255,255,0)); display: flex; justify-content: center; }
+        .action-btn { width: 100%; max-width: 500px; background: var(--primary); color: white; border: none; padding: 18px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-premium); cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: var(--shadow-lg); transition: var(--transition-smooth); }
+        .action-btn:active { transform: scale(0.97); }
 
-        /* --- CONCIERGE CHAT PANEL INTERFACE --- */
-        #chat-interface { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-light); z-index: 2000; transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        /* --- CONCIERGE CHAT INTERFACE --- */
+        #chat-interface { position: fixed; top: 0; left: 0; width: 100vw; height: 100%; background: var(--bg-light); z-index: 2000; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
         #chat-interface.active { transform: translateX(0); }
-        .chat-header { background: var(--surface); padding: 20px 24px; display: flex; align-items: center; border-bottom: 1px solid var(--border); gap: 18px; }
-        .chat-back-btn { background: none; border: none; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-light); border: 1px solid var(--border); transition: var(--transition-smooth); }
-        .chat-back-btn:active { transform: scale(0.9); }
-        .owner-profile { display: flex; align-items: center; gap: 14px; }
-        .owner-avatar { width: 44px; height: 44px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150') center/cover; border: 1px solid var(--border); }
-        .owner-status { font-size: 0.7rem; color: #2D9D53; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; display: block; }
+        .chat-header { background: var(--surface); padding: 16px 20px; display: flex; align-items: center; border-bottom: 1px solid var(--border); gap: 14px; }
+        .chat-back-btn { background: var(--bg-light); border: 1px solid var(--border); cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; }
+        .owner-profile { display: flex; align-items: center; gap: 12px; }
+        .owner-avatar { width: 40px; height: 40px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150') center/cover; border: 1px solid var(--border); }
+        .owner-status { font-size: 0.65rem; color: #2D9D53; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; display: block; }
         
-        .chat-stream { flex-grow: 1; overflow-y: auto; padding: 28px 20px; display: flex; flex-direction: column; gap: 20px; }
+        .chat-stream { flex-grow: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; -webkit-overflow-scrolling: touch; }
         
-        /* CHAT BUBBLES PLATFORM */
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; }
+        /* CHAT BUBBLES */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 88%; }
         .msg-wrapper.system { align-self: flex-start; }
         .msg-wrapper.user { align-self: flex-end; }
-
-        .msg-bubble { padding: 16px 20px; border-radius: var(--radius-premium); font-size: 0.95rem; line-height: 1.55; width: 100%; font-weight: 500; }
-        .msg-system .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; box-shadow: var(--shadow-sm); }
-        .msg-user .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; box-shadow: var(--shadow-sm); }
-
-        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-top: 6px; padding: 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .msg-meta svg { width: 13px; height: 13px; fill: none; stroke: var(--text-muted); stroke-width: 2.5; }
-        
+        .msg-bubble { padding: 14px 18px; border-radius: var(--radius-premium); font-size: 0.9rem; line-height: 1.5; width: 100%; font-weight: 500; }
+        .msg-system .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; }
+        .msg-user .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
+        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 0.6rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+        .msg-meta svg { width: 12px; height: 12px; fill: none; stroke: var(--text-muted); stroke-width: 2.5; }
         .msg-meta.status-seen { color: var(--accent); }
         .msg-meta.status-seen svg { stroke: var(--accent); }
 
-        /* LIVE SYSTEM CHIPS GRID ENGINE */
-        .chat-form-box { background: var(--surface); border-radius: var(--radius-premium); padding: 24px; box-shadow: var(--shadow-sm); width: 100%; max-width: 440px; align-self: center; border: 1px solid var(--border); margin: 12px 0; }
-        .chat-form-box h4 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; color: var(--primary); }
-        .chat-form-group { margin-bottom: 22px; }
+        /* LIVE SYSTEM CHIPS ENGINE */
+        .chat-form-box { background: var(--surface); border-radius: var(--radius-premium); padding: 18px; box-shadow: var(--shadow-sm); width: 100%; max-width: 100%; border: 1px solid var(--border); margin: 8px 0; }
+        .chat-form-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: var(--primary); }
+        .chat-form-group { margin-bottom: 16px; }
         .chat-form-group:last-child { margin-bottom: 0; }
-        .chat-form-group label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .chat-form-group label { display: block; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         
-        .chip-flex-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .chip-flex-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .chip-flex-row::-webkit-scrollbar { display: none; }
         
-        /* THE LUXURY CHIP COMPONENT */
-        .luxury-chip { flex-shrink: 0; background: var(--bg-light); border: 1px solid var(--border); padding: 14px 22px; border-radius: var(--radius-pill); font-size: 0.88rem; font-weight: 700; color: var(--text-main); cursor: pointer; transition: var(--transition-smooth); text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .luxury-chip.calendar-bubble { border-radius: 18px; padding: 12px 18px; min-width: 80px; }
-        .luxury-chip.calendar-bubble span:first-child { font-size: 1.2rem; font-weight: 800; font-family: 'Syne', sans-serif; }
-        .luxury-chip .sub-month { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
-        
-        /* Active Selections State Change */
-        .luxury-chip.active { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(24,34,27,0.15); }
+        .luxury-chip { flex-shrink: 0; background: var(--bg-light); border: 1px solid var(--border); padding: 12px 18px; border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 700; color: var(--text-main); cursor: pointer; text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
+        .luxury-chip.calendar-bubble { border-radius: 16px; padding: 10px 14px; min-width: 72px; }
+        .luxury-chip.calendar-bubble span:first-child { font-size: 1.1rem; font-weight: 800; font-family: 'Syne', sans-serif; }
+        .luxury-chip .sub-month { font-size: 0.6rem; opacity: 0.7; margin-top: 2px; text-transform: uppercase; font-weight: 800; }
+        .luxury-chip.active { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; }
 
-        .chat-input-bar { background: var(--surface); padding: 16px 24px 36px 24px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border); }
-        .chat-input-field { flex-grow: 1; border: 1px solid var(--border); padding: 16px 20px; border-radius: var(--radius-pill); outline: none; font-size: 0.95rem; background: var(--bg-light); transition: var(--transition-smooth); font-weight: 500; }
+        .chat-input-bar { background: var(--surface); padding: 12px 16px 28px 16px; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--border); }
+        .chat-input-field { flex-grow: 1; border: 1px solid var(--border); padding: 14px 18px; border-radius: var(--radius-pill); outline: none; font-size: 0.9rem; background: var(--bg-light); font-weight: 500; }
         .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
-        .send-chat-btn { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: var(--transition-smooth); }
-        .send-chat-btn:active { transform: scale(0.92); }
+        .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        /* --- POPUP MODAL ARCHITECTURE --- */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 3000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: flex-end; }
+        /* --- POPUP MODAL --- */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: flex-end; }
         .popup-overlay.active { opacity: 1; visibility: visible; }
         
-        .popup-card { background: var(--surface); width: 100%; border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 36px 32px 52px 32px; transform: translateY(100%); transition: var(--transition-smooth); border-top: 1px solid var(--border); box-shadow: var(--shadow-lg); max-width: 550px; margin: 0 auto; }
+        .popup-card { background: var(--surface); width: 100%; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 24px 20px 42px 20px; transform: translateY(100%); transition: var(--transition-smooth); border-top: 1px solid var(--border); max-width: 500px; margin: 0 auto; }
         .popup-overlay.active .popup-card { transform: translateY(0); }
         
-        .popup-handle { width: 44px; height: 5px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: -16px auto 28px auto; }
-        .popup-card h4 { font-size: 1.6rem; color: var(--primary); margin-bottom: 12px; font-weight: 700; text-align: center; }
-        .popup-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 28px; text-align: center; font-weight: 500; }
+        .popup-handle { width: 40px; height: 4px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: -4px auto 20px auto; }
+        .popup-card h4 { font-size: 1.4rem; color: var(--primary); margin-bottom: 8px; font-weight: 700; text-align: center; }
+        .popup-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; text-align: center; }
         
-        .messenger-tags { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; }
-        .tag-btn { padding: 14px 24px; border-radius: var(--radius-pill); border: 1px solid var(--border); font-size: 0.85rem; font-weight: 700; cursor: pointer; background: var(--bg-light); color: var(--text-main); transition: var(--transition-smooth); }
-        .tag-btn.selected { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 6px 16px rgba(24,34,27,0.15); }
+        .messenger-tags { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .tag-btn { padding: 10px 20px; border-radius: var(--radius-pill); border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; cursor: pointer; background: var(--bg-light); color: var(--text-main); }
+        .tag-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
         
-        .popup-input { width: 100%; border: 1px solid var(--border); padding: 18px; border-radius: 18px; outline: none; font-size: 1.25rem; font-weight: 700; text-align: center; background: var(--bg-light); margin-bottom: 24px; color: var(--primary); transition: var(--transition-smooth); letter-spacing: 0.5px; }
-        .popup-input:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 5px rgba(197,168,128,0.15); }
+        .popup-input { width: 100%; border: 1px solid var(--border); padding: 14px; border-radius: 14px; outline: none; font-size: 1.1rem; font-weight: 700; text-align: center; background: var(--bg-light); margin-bottom: 18px; color: var(--primary); }
+        .popup-input:focus { border-color: var(--accent); background: var(--surface); }
         
-        .popup-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 20px; font-size: 0.95rem; font-weight: 700; border-radius: 18px; cursor: pointer; box-shadow: 0 10px 30px rgba(24,34,27,0.15); transition: var(--transition-smooth); letter-spacing: 0.5px; }
-        .popup-submit:active { transform: scale(0.98); }
-        .popup-skip-wrapper { text-align: center; margin-top: 22px; }
-        .popup-skip { display: inline-block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border); cursor: pointer; transition: var(--transition-smooth); }
-        .popup-skip:hover { color: var(--primary); border-color: var(--primary); }
+        .popup-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; font-size: 0.9rem; font-weight: 700; border-radius: 14px; cursor: pointer; }
+        .popup-skip-wrapper { text-align: center; margin-top: 16px; }
+        .popup-skip { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -217,7 +216,7 @@
 
     <div id="main-content">
         <div class="hero-header">
-            <img class="hero-video-bg" src="https://res.klook.com/image/upload/fl_lossy.progressive,q_65/w_1080/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/eqxbgaw7lj5ccclru8je.webp">
+            <img class="hero-video-bg" src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1080" alt="Hero background">
             <div class="hero-overlay"></div>
             <div class="hero-text">
                 <p id="hero-tag">Stepantsminda, Georgia</p>
@@ -235,8 +234,8 @@
     <div class="bottom-modal" id="tour-modal">
         <div class="modal-handle"></div>
         <div class="modal-content-scroll">
-            <img id="modal-img" class="modal-hero-img" src="">
-            <h2 id="modal-title" style="font-size: 1.8rem; margin-bottom: 16px; color: var(--primary);"></h2>
+            <img id="modal-img" class="modal-hero-img" src="" alt="Tour preview">
+            <h2 id="modal-title" style="font-size: 1.5rem; margin-bottom: 14px; color: var(--primary);"></h2>
             <div class="metric-grid" id="modal-metric-box"></div>
             <p id="modal-desc" class="modal-description"></p>
             <div class="gear-section-title" id="modal-gear-title">What to Bring along</div>
@@ -256,7 +255,7 @@
             <div class="owner-profile">
                 <div class="owner-avatar"></div>
                 <div>
-                    <h4 style="font-family:inherit; font-size: 1rem; font-weight:700; color: var(--primary);" id="chat-owner-name">Giorgi (Host)</h4>
+                    <h4 style="font-family:inherit; font-size: 0.95rem; font-weight:700; color: var(--primary);" id="chat-owner-name">Giorgi (Host)</h4>
                     <span class="owner-status" id="chat-live-status">● Stables Connected</span>
                 </div>
             </div>
@@ -291,7 +290,29 @@
     </div>
 
     <script>
-        // Insert fallback database matrix configurations if connection to variables fails
+        // Custom mobile viewport sync metric
+        let scrollPosition = 0;
+        const setVhMetric = () => {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        window.addEventListener('resize', setVhMetric);
+        window.addEventListener('orientationchange', setVhMetric);
+        setVhMetric();
+
+        // Background scroll freeze manager
+        function toggleScrollLock(isLocked) {
+            if (isLocked) {
+                scrollPosition = window.pageYOffset;
+                document.body.classList.add('scroll-locked');
+                document.body.style.top = `-${scrollPosition}px`;
+            } else {
+                document.body.classList.remove('scroll-locked');
+                document.body.style.top = '';
+                window.scrollTo(0, scrollPosition);
+            }
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyYourKey...",
             authDomain: "your-project.firebaseapp.com",
@@ -301,14 +322,13 @@
             appId: "1:12345:web:12345"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        let chatId = localStorage.getItem('kazbegi_session_room');
-        if (!chatId) {
-            chatId = 'room_' + Math.random().toString(36).substring(2, 11);
-            localStorage.setItem('kazbegi_session_room', chatId);
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            window.db = firebase.firestore();
         }
+
+        let chatId = localStorage.getItem('kazbegi_session_room') || 'room_' + Math.random().toString(36).substring(2, 11);
+        localStorage.setItem('kazbegi_session_room', chatId);
 
         let currentLanguage = 'en';
         let selectedTourKey = '';
@@ -353,7 +373,7 @@
                 paramTitle: "حجز سريع", mDay: "متى", mTime: "الوقت المفضل", mRiders: "عدد الأشخاص؟",
                 dayToday: "اليوم", dayTomorrow: "غداً", riderSingle: "راِكب واحد", ownerStatus: "● مستقر الخيل متصل",
                 months: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
-                popTitle: "تأكيد فوري", popDesc: "أين يمكن لـ جيورجي التواصل معك لتنسيق مسار اللقاء？", popBtn: "تأكيد الحجز الآن", popSkip: "تخطي، سأتحدث هنا فقط",
+                popTitle: "تأكيد فوري", popDesc: "أين يمكن لـ جيورجي التواصل معك لتنسيق مسار اللقاء؟", popBtn: "تأكيد الحجز الآن", popSkip: "تخطي، سأتحدث هنا فقط",
                 lblSeen: "شوهد", lblSent: "أُرسل"
             }
         };
@@ -396,218 +416,229 @@
             document.getElementById('pop-btn').innerText = dict.popBtn;
             document.getElementById('pop-skip').innerText = dict.popSkip;
 
+            renderTourCatalog();
+
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                main.style.display = 'block';
+                setTimeout(() => main.style.opacity = '1', 50);
+            }, 600);
+        }
+
+        function renderTourCatalog() {
             const container = document.getElementById('tour-cards-container');
             container.innerHTML = '';
             
             Object.keys(tourDatabase).forEach(key => {
                 const tour = tourDatabase[key];
-                const localData = tour[lang];
-                container.innerHTML += `
-                    <div class="premium-tour-card" onclick="openTourModal('${key}')">
-                        <div class="card-img-wrapper">
-                            <img class="card-img" src="${tour.image}">
-                            <div class="card-price-tag">${tour.price}</div>
+                const localized = tour[currentLanguage];
+                
+                const card = document.createElement('div');
+                card.className = 'premium-tour-card';
+                card.onclick = () => openTourModal(key);
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img class="card-img" src="${tour.image}" alt="${localized.title}">
+                        <div class="card-price-tag">${tour.price}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3>${localized.title}</h3>
+                        <div class="card-arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </div>
-                        <div class="card-body">
-                            <h3>${localData.title}</h3>
-                            <div class="card-arrow">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </div>
-                        </div>
-                    </div>`;
+                    </div>
+                `;
+                container.appendChild(card);
             });
-
-            document.getElementById('splash-screen').style.opacity = 0;
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                setTimeout(() => document.getElementById('main-content').style.opacity = 1, 50);
-            }, 600);
-        }
-
-        function getMetricSvg(index) {
-            const icons = [
-                `<svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.832V8.066a1 1 0 00-.553-.894L15 4"/></svg>`,
-                `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
-                `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`,
-                `<svg viewBox="0 0 24 24"><path d="M2 20h20M5 17l4-7 4 5 4-9 4 11"/></svg>`
-            ];
-            return icons[index];
         }
 
         function openTourModal(key) {
             selectedTourKey = key;
             const tour = tourDatabase[key];
-            const data = tour[currentLanguage];
+            const localized = tour[currentLanguage];
             
-            document.getElementById('modal-title').innerText = data.title;
-            document.getElementById('modal-desc').innerText = data.desc;
             document.getElementById('modal-img').src = tour.image;
+            document.getElementById('modal-title').innerText = localized.title;
+            document.getElementById('modal-desc').innerText = localized.desc;
             
             const metricsBox = document.getElementById('modal-metric-box');
             metricsBox.innerHTML = '';
-            data.metrics.forEach((m, idx) => {
-                metricsBox.innerHTML += `<div class="metric-item">${getMetricSvg(idx)}<span>${m}</span></div>`;
+            const SVG_ICONS = [
+                `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+                `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+                `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+                `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
+            ];
+            
+            localized.metrics.forEach((m, idx) => {
+                metricsBox.innerHTML += `<div class="metric-item">${SVG_ICONS[idx]}<span>${m}</span></div>`;
             });
 
             const gearBox = document.getElementById('modal-gear-box');
             gearBox.innerHTML = '';
-            data.gear.forEach(g => {
-                gearBox.innerHTML += `<div class="gear-card"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg><span>${g}</span></div>`;
+            localized.gear.forEach(g => {
+                gearBox.innerHTML += `
+                    <div class="gear-card">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>${g}</span>
+                    </div>`;
             });
 
             document.getElementById('modal-overlay').classList.add('active');
             document.getElementById('tour-modal').classList.add('active');
+            toggleScrollLock(true); // Freeze background
         }
 
         function closeTourModal() {
             document.getElementById('modal-overlay').classList.remove('active');
             document.getElementById('tour-modal').classList.remove('active');
+            toggleScrollLock(false); // Enable background scroll
         }
 
         function openChatInterface() {
             closeTourModal();
             document.getElementById('chat-interface').classList.add('active');
-            initChatStream();
+            setupInteractiveChatEngine();
         }
 
         function closeChatInterface() {
             document.getElementById('chat-interface').classList.remove('active');
+            toggleScrollLock(false); // Safety clearance catch
         }
 
-        function generateTimelineChips() {
+        function setupInteractiveChatEngine() {
             const dict = uiDictionary[currentLanguage];
+            const stream = document.getElementById('chat-box-stream');
+            stream.innerHTML = '';
+
+            appendChatBubble('system', dict.chatWelcome);
+
+            const configForm = document.createElement('div');
+            configForm.className = 'chat-form-box';
+            configForm.innerHTML = `
+                <h4>${dict.paramTitle}</h4>
+                <div class="chat-form-group">
+                    <label>${dict.mDay}</label>
+                    <div class="chip-flex-row" id="row-day"></div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mTime}</label>
+                    <div class="chip-flex-row" id="row-time"></div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mRiders}</label>
+                    <div class="chip-flex-row" id="row-riders"></div>
+                </div>
+            `;
+            stream.appendChild(configForm);
+
+            const dayRow = configForm.querySelector('#row-day');
             const today = new Date();
-            const tomorrow = new Date();
-            tomorrow.setDate(today.getDate() + 1);
+            const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+            
+            dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','Today')"><span>${today.getDate()}</span><span class="sub-month">${dict.dayToday}</span></div>`;
+            dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','Tomorrow')"><span>${tomorrow.getDate()}</span><span class="sub-month">${dict.dayTomorrow}</span></div>`;
+            
+            for(let i=2; i<6; i++) {
+                const future = new Date(today); future.setDate(today.getDate() + i);
+                dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','${future.getDate()}-${dict.months[future.getMonth()]}')"><span>${future.getDate()}</span><span class="sub-month">${dict.months[future.getMonth()]}</span></div>`;
+            }
 
-            const d1 = today.getDate(), m1 = dict.months[today.getMonth()];
-            const d2 = tomorrow.getDate(), m2 = dict.months[tomorrow.getMonth()];
+            const timeRow = configForm.querySelector('#row-time');
+            ["09:00", "11:30", "14:00", "16:30"].forEach(t => {
+                timeRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'time','${t}')">${t}</div>`;
+            });
 
-            return `
-                <div class="chat-form-box">
-                    <h4>${dict.paramTitle}</h4>
-                    <div class="chat-form-group">
-                        <label>${dict.mDay}</label>
-                        <div class="chip-flex-row">
-                            <div class="luxury-chip calendar-bubble active" onclick="selectChip(this, 'day', 'TODAY')"><span>${d1}</span><span class="sub-month">${dict.dayToday}</span></div>
-                            <div class="luxury-chip calendar-bubble" onclick="selectChip(this, 'day', 'TOMORROW')"><span>${d2}</span><span class="sub-month">${dict.dayTomorrow}</span></div>
-                        </div>
-                    </div>
-                    <div class="chat-form-group">
-                        <label>${dict.mTime}</label>
-                        <div class="chip-flex-row">
-                            <div class="luxury-chip active" onclick="selectChip(this, 'time', '10:00')">10:00</div>
-                            <div class="luxury-chip" onclick="selectChip(this, 'time', '14:00')">14:00</div>
-                            <div class="luxury-chip" onclick="selectChip(this, 'time', '17:30')">17:30</div>
-                        </div>
-                    </div>
-                    <div class="chat-form-group">
-                        <label>${dict.mRiders}</label>
-                        <div class="chip-flex-row">
-                            <div class="luxury-chip active" onclick="selectChip(this, 'riders', '1')">${dict.riderSingle}</div>
-                            <div class="luxury-chip" onclick="selectChip(this, 'riders', '2')">2</div>
-                            <div class="luxury-chip" onclick="selectChip(this, 'riders', '3+')">3+</div>
-                        </div>
-                    </div>
-                    <button class="popup-submit" style="margin-top:8px;" onclick="triggerContactPopup()">${dict.bookBtn}</button>
-                </div>`;
+            const ridersRow = configForm.querySelector('#row-riders');
+            ridersRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'riders','1')">${dict.riderSingle}</div>`;
+            for(let r=2; r<=6; r++) {
+                ridersRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'riders','${r}')">${r}</div>`;
+            }
+            
+            stream.scrollTop = stream.scrollHeight;
         }
 
-        function selectChip(el, type, val) {
+        function selectChip(el, type, value) {
             el.parentElement.querySelectorAll('.luxury-chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            if(type === 'day') chosenDay = val;
-            if(type === 'time') chosenTime = val;
-            if(type === 'riders') chosenRiders = val;
+            
+            if(type === 'day') chosenDay = value;
+            if(type === 'time') chosenTime = value;
+            if(type === 'riders') chosenRiders = value;
+
+            if(chosenDay && chosenTime && chosenRiders) {
+                const summaryMsg = `Booking Request: ${tourDatabase[selectedTourKey][currentLanguage].title}. Date: ${chosenDay}, Time: ${chosenTime}, Riders: ${chosenRiders}`;
+                appendChatBubble('user', summaryMsg);
+                setTimeout(() => {
+                    document.getElementById('contact-popup').classList.add('active');
+                    toggleScrollLock(true); // Freeze background for contact view modal
+                }, 800);
+                chosenDay = ''; chosenTime = ''; chosenRiders = '';
+            }
         }
 
-        function initChatStream() {
+        function appendChatBubble(sender, text) {
             const stream = document.getElementById('chat-box-stream');
+            const wrapper = document.createElement('div');
+            wrapper.className = `msg-wrapper ${sender === 'system' ? 'system msg-system' : 'user msg-user'}`;
+            
+            const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const dict = uiDictionary[currentLanguage];
             
-            chosenDay = 'TODAY'; chosenTime = '10:00'; chosenRiders = '1';
-
-            stream.innerHTML = `
-                <div class="msg-wrapper system msg-system">
-                    <div class="msg-bubble">${dict.chatWelcome}</div>
-                    <div class="msg-meta">${getClockTime()}</div>
+            wrapper.innerHTML = `
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-meta ${sender === 'user' ? 'status-seen' : ''}">
+                    ${timeStr} ${sender === 'user' ? `· ${dict.lblSeen} <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>` : ''}
                 </div>
-                ${generateTimelineChips()}`;
-            
-            db.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc')
-                .onSnapshot(snap => {
-                    snap.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            renderChatMessage(change.doc.data());
-                        }
-                    });
-                });
-        }
-
-        function renderChatMessage(msg) {
-            const stream = document.getElementById('chat-box-stream');
-            const sideClass = msg.sender === 'user' ? 'user msg-user' : 'system msg-system';
-            const metaStatus = currentLanguage === 'ar' ? 'شوهد' : uiDictionary[currentLanguage].lblSeen;
-            
-            const html = `
-                <div class="msg-wrapper ${sideClass}">
-                    <div class="msg-bubble">${msg.text}</div>
-                    <div class="msg-meta status-seen"><span>${metaStatus}</span><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"/></svg></div>
-                </div>`;
-            stream.insertAdjacentHTML('beforeend', html);
+            `;
+            stream.appendChild(wrapper);
             stream.scrollTop = stream.scrollHeight;
         }
 
         function sendMessage() {
-            const field = document.getElementById('chat-custom-message');
-            const txt = field.value.trim();
-            if(!txt) return;
+            const fld = document.getElementById('chat-custom-message');
+            if(!fld.value.trim()) return;
+            appendChatBubble('user', fld.value);
             
-            db.collection('chats').doc(chatId).collection('messages').add({
-                sender: 'user', text: txt, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            field.value = '';
+            if (window.db) {
+                window.db.collection('conversations').doc(chatId).collection('messages').add({
+                    text: fld.value,
+                    sender: 'user',
+                    timestamp: new Date()
+                }).catch(e => console.log("Firebase bypass active."));
+            }
+            fld.value = '';
         }
 
-        function triggerContactPopup() {
-            document.getElementById('contact-popup').classList.add('active');
-        }
-
-        function selectMessengerTag(el, val) {
+        function selectMessengerTag(el, platform) {
             document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
             el.classList.add('selected');
-            selectedMessenger = val;
+            selectedMessenger = platform;
         }
 
         function submitContactPopup() {
-            const phone = document.getElementById('popup-phone-field').value.trim();
+            const phone = document.getElementById('popup-phone-field').value;
             if(!phone) return;
-
-            const summary = `System Reservation Config Log:
-            - Tour ID: ${selectedTourKey}
-            - Day Matrix: ${chosenDay}
-            - Slot Time: ${chosenTime}
-            - Riders Matrix Count: ${chosenRiders}
-            - Client Direct Link: ${selectedMessenger} (${phone})`;
-
-            db.collection('chats').doc(chatId).set({
-                chatId: chatId, phone: phone, messenger: selectedMessenger, summary: summary, lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-
-            db.collection('chats').doc(chatId).collection('messages').add({
-                sender: 'user', text: `System Booking Matrix Locked: ${chosenDay} at ${chosenTime} for ${chosenRiders} Rider(s). Contact via ${selectedMessenger}: ${phone}`, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
+            
+            if (window.db) {
+                window.db.collection('reservations').add({
+                    chatRoom: chatId,
+                    messenger: selectedMessenger,
+                    contact: phone,
+                    tour: selectedTourKey,
+                    timestamp: new Date()
+                });
+            }
             dismissContactPopup();
+            appendChatBubble('system', "Thank you! Handshake established. Giorgi is confirming paths via your chosen messenger channel right now.");
         }
 
         function dismissContactPopup() {
             document.getElementById('contact-popup').classList.remove('active');
-        }
-
-        function getClockTime() {
-            const d = new Date(); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+            toggleScrollLock(false); // Release scroll when popups drop out
         }
     </script>
 </body>
