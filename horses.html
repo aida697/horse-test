@@ -176,16 +176,46 @@
         .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
         .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        /* --- POPUP MODAL --- */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: flex-end; }
+        /* --- POPUP MODAL (UPDATED TO TRUE CENTER VIEW) --- */
+        .popup-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: rgba(9, 11, 9, 0.6); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px); 
+            z-index: 3000; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: var(--transition-smooth); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 24px;
+        }
         .popup-overlay.active { opacity: 1; visibility: visible; }
         
-        .popup-card { background: var(--surface); width: 100%; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 24px 20px 42px 20px; transform: translateY(100%); transition: var(--transition-smooth); border-top: 1px solid var(--border); max-width: 500px; margin: 0 auto; }
-        .popup-overlay.active .popup-card { transform: translateY(0); }
+        .popup-card { 
+            background: var(--surface); 
+            width: 100%; 
+            max-width: 400px;
+            border-radius: var(--radius-premium); 
+            padding: 32px 24px; 
+            transform: scale(0.85); 
+            opacity: 0;
+            transition: var(--transition-smooth); 
+            box-shadow: 0 30px 70px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .popup-overlay.active .popup-card { 
+            transform: scale(1); 
+            opacity: 1;
+        }
         
-        .popup-handle { width: 40px; height: 4px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: -4px auto 20px auto; }
-        .popup-card h4 { font-size: 1.4rem; color: var(--primary); margin-bottom: 8px; font-weight: 700; text-align: center; }
-        .popup-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; text-align: center; }
+        .popup-card h4 { font-size: 1.4rem; color: var(--primary); margin-bottom: 10px; font-weight: 700; text-align: center; }
+        .popup-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; text-align: center; }
         
         .messenger-tags { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
         .tag-btn { padding: 10px 20px; border-radius: var(--radius-pill); border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; cursor: pointer; background: var(--bg-light); color: var(--text-main); }
@@ -271,7 +301,6 @@
 
     <div class="popup-overlay" id="contact-popup">
         <div class="popup-card">
-            <div class="popup-handle"></div>
             <h4 id="pop-title">Instant Confirmation</h4>
             <p id="pop-desc">Where can Giorgi reach you to coordinate meeting paths?</p>
             
@@ -290,7 +319,6 @@
     </div>
 
     <script>
-        // Custom mobile viewport sync metric
         let scrollPosition = 0;
         const setVhMetric = () => {
             let vh = window.innerHeight * 0.01;
@@ -300,7 +328,6 @@
         window.addEventListener('orientationchange', setVhMetric);
         setVhMetric();
 
-        // Background scroll freeze manager
         function toggleScrollLock(isLocked) {
             if (isLocked) {
                 scrollPosition = window.pageYOffset;
@@ -393,253 +420,4 @@
                 en: { title: "Elias Church Riding Tour", desc: "Take a peaceful horseback trail to the magnificent high vantage point of Saint Elias the Prophet Church.", metrics: ["8 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Warm layers"] }, 
                 ka: { title: "ელია წინასწარმეტყველის ეკლესია", desc: "მშვიდი საცხენოსნო ტური წმინდა ელიას ეკლესიის პანორამულ გადასახედზე.", metrics: ["8 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "თბილი ტანსაცმელი"] }, 
                 ru: { title: "Церковь Ильи", desc: "Спокойная конная прогулка к красивейшей смотровой площадке церкви Святого Илии.", metrics: ["8 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Теплая одежда"] }, 
-                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء", "ملابس دافئة"] } 
-            }
-        };
-
-        function setLanguage(lang) {
-            currentLanguage = lang;
-            if(lang === 'ar') document.body.classList.add('rtl');
-            else document.body.classList.remove('rtl');
-
-            const dict = uiDictionary[lang];
-            document.getElementById('hero-tag').innerText = dict.heroTag;
-            document.getElementById('hero-title').innerText = dict.heroTitle;
-            document.getElementById('sec-header').innerText = dict.secHeader;
-            document.getElementById('modal-gear-title').innerText = dict.gearTitle;
-            document.getElementById('btn-modal-book').innerText = dict.bookBtn;
-            document.getElementById('chat-custom-message').placeholder = dict.inputPlaceholder;
-            document.getElementById('chat-live-status').innerText = dict.ownerStatus;
-            
-            document.getElementById('pop-title').innerText = dict.popTitle;
-            document.getElementById('pop-desc').innerText = dict.popDesc;
-            document.getElementById('pop-btn').innerText = dict.popBtn;
-            document.getElementById('pop-skip').innerText = dict.popSkip;
-
-            renderTourCatalog();
-
-            const splash = document.getElementById('splash-screen');
-            const main = document.getElementById('main-content');
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                main.style.display = 'block';
-                setTimeout(() => main.style.opacity = '1', 50);
-            }, 600);
-        }
-
-        function renderTourCatalog() {
-            const container = document.getElementById('tour-cards-container');
-            container.innerHTML = '';
-            
-            Object.keys(tourDatabase).forEach(key => {
-                const tour = tourDatabase[key];
-                const localized = tour[currentLanguage];
-                
-                const card = document.createElement('div');
-                card.className = 'premium-tour-card';
-                card.onclick = () => openTourModal(key);
-                card.innerHTML = `
-                    <div class="card-img-wrapper">
-                        <img class="card-img" src="${tour.image}" alt="${localized.title}">
-                        <div class="card-price-tag">${tour.price}</div>
-                    </div>
-                    <div class="card-body">
-                        <h3>${localized.title}</h3>
-                        <div class="card-arrow">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function openTourModal(key) {
-            selectedTourKey = key;
-            const tour = tourDatabase[key];
-            const localized = tour[currentLanguage];
-            
-            document.getElementById('modal-img').src = tour.image;
-            document.getElementById('modal-title').innerText = localized.title;
-            document.getElementById('modal-desc').innerText = localized.desc;
-            
-            const metricsBox = document.getElementById('modal-metric-box');
-            metricsBox.innerHTML = '';
-            const SVG_ICONS = [
-                `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-                `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
-                `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
-                `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`
-            ];
-            
-            localized.metrics.forEach((m, idx) => {
-                metricsBox.innerHTML += `<div class="metric-item">${SVG_ICONS[idx]}<span>${m}</span></div>`;
-            });
-
-            const gearBox = document.getElementById('modal-gear-box');
-            gearBox.innerHTML = '';
-            localized.gear.forEach(g => {
-                gearBox.innerHTML += `
-                    <div class="gear-card">
-                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>${g}</span>
-                    </div>`;
-            });
-
-            document.getElementById('modal-overlay').classList.add('active');
-            document.getElementById('tour-modal').classList.add('active');
-            toggleScrollLock(true); // Freeze background
-        }
-
-        function closeTourModal() {
-            document.getElementById('modal-overlay').classList.remove('active');
-            document.getElementById('tour-modal').classList.remove('active');
-            toggleScrollLock(false); // Enable background scroll
-        }
-
-        function openChatInterface() {
-            closeTourModal();
-            document.getElementById('chat-interface').classList.add('active');
-            setupInteractiveChatEngine();
-        }
-
-        function closeChatInterface() {
-            document.getElementById('chat-interface').classList.remove('active');
-            toggleScrollLock(false); // Safety clearance catch
-        }
-
-        function setupInteractiveChatEngine() {
-            const dict = uiDictionary[currentLanguage];
-            const stream = document.getElementById('chat-box-stream');
-            stream.innerHTML = '';
-
-            appendChatBubble('system', dict.chatWelcome);
-
-            const configForm = document.createElement('div');
-            configForm.className = 'chat-form-box';
-            configForm.innerHTML = `
-                <h4>${dict.paramTitle}</h4>
-                <div class="chat-form-group">
-                    <label>${dict.mDay}</label>
-                    <div class="chip-flex-row" id="row-day"></div>
-                </div>
-                <div class="chat-form-group">
-                    <label>${dict.mTime}</label>
-                    <div class="chip-flex-row" id="row-time"></div>
-                </div>
-                <div class="chat-form-group">
-                    <label>${dict.mRiders}</label>
-                    <div class="chip-flex-row" id="row-riders"></div>
-                </div>
-            `;
-            stream.appendChild(configForm);
-
-            const dayRow = configForm.querySelector('#row-day');
-            const today = new Date();
-            const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-            
-            dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','Today')"><span>${today.getDate()}</span><span class="sub-month">${dict.dayToday}</span></div>`;
-            dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','Tomorrow')"><span>${tomorrow.getDate()}</span><span class="sub-month">${dict.dayTomorrow}</span></div>`;
-            
-            for(let i=2; i<6; i++) {
-                const future = new Date(today); future.setDate(today.getDate() + i);
-                dayRow.innerHTML += `<div class="luxury-chip calendar-bubble" onclick="selectChip(this,'day','${future.getDate()}-${dict.months[future.getMonth()]}')"><span>${future.getDate()}</span><span class="sub-month">${dict.months[future.getMonth()]}</span></div>`;
-            }
-
-            const timeRow = configForm.querySelector('#row-time');
-            ["09:00", "11:30", "14:00", "16:30"].forEach(t => {
-                timeRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'time','${t}')">${t}</div>`;
-            });
-
-            const ridersRow = configForm.querySelector('#row-riders');
-            ridersRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'riders','1')">${dict.riderSingle}</div>`;
-            for(let r=2; r<=6; r++) {
-                ridersRow.innerHTML += `<div class="luxury-chip" onclick="selectChip(this,'riders','${r}')">${r}</div>`;
-            }
-            
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function selectChip(el, type, value) {
-            el.parentElement.querySelectorAll('.luxury-chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            
-            if(type === 'day') chosenDay = value;
-            if(type === 'time') chosenTime = value;
-            if(type === 'riders') chosenRiders = value;
-
-            if(chosenDay && chosenTime && chosenRiders) {
-                const summaryMsg = `Booking Request: ${tourDatabase[selectedTourKey][currentLanguage].title}. Date: ${chosenDay}, Time: ${chosenTime}, Riders: ${chosenRiders}`;
-                appendChatBubble('user', summaryMsg);
-                setTimeout(() => {
-                    document.getElementById('contact-popup').classList.add('active');
-                    toggleScrollLock(true); // Freeze background for contact view modal
-                }, 800);
-                chosenDay = ''; chosenTime = ''; chosenRiders = '';
-            }
-        }
-
-        function appendChatBubble(sender, text) {
-            const stream = document.getElementById('chat-box-stream');
-            const wrapper = document.createElement('div');
-            wrapper.className = `msg-wrapper ${sender === 'system' ? 'system msg-system' : 'user msg-user'}`;
-            
-            const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const dict = uiDictionary[currentLanguage];
-            
-            wrapper.innerHTML = `
-                <div class="msg-bubble">${text}</div>
-                <div class="msg-meta ${sender === 'user' ? 'status-seen' : ''}">
-                    ${timeStr} ${sender === 'user' ? `· ${dict.lblSeen} <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>` : ''}
-                </div>
-            `;
-            stream.appendChild(wrapper);
-            stream.scrollTop = stream.scrollHeight;
-        }
-
-        function sendMessage() {
-            const fld = document.getElementById('chat-custom-message');
-            if(!fld.value.trim()) return;
-            appendChatBubble('user', fld.value);
-            
-            if (window.db) {
-                window.db.collection('conversations').doc(chatId).collection('messages').add({
-                    text: fld.value,
-                    sender: 'user',
-                    timestamp: new Date()
-                }).catch(e => console.log("Firebase bypass active."));
-            }
-            fld.value = '';
-        }
-
-        function selectMessengerTag(el, platform) {
-            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedMessenger = platform;
-        }
-
-        function submitContactPopup() {
-            const phone = document.getElementById('popup-phone-field').value;
-            if(!phone) return;
-            
-            if (window.db) {
-                window.db.collection('reservations').add({
-                    chatRoom: chatId,
-                    messenger: selectedMessenger,
-                    contact: phone,
-                    tour: selectedTourKey,
-                    timestamp: new Date()
-                });
-            }
-            dismissContactPopup();
-            appendChatBubble('system', "Thank you! Handshake established. Giorgi is confirming paths via your chosen messenger channel right now.");
-        }
-
-        function dismissContactPopup() {
-            document.getElementById('contact-popup').classList.remove('active');
-            toggleScrollLock(false); // Release scroll when popups drop out
-        }
-    </script>
-</body>
-</html>
+                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear:
