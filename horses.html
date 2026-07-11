@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kazbegi Premium Horse Tours</title>
+    <title>Kazbegi Riders</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght=500;700;800&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -62,10 +62,10 @@
         body.rtl .card-price-tag { right: auto; left: 24px; }
         body.rtl .slideshow-nav { left: 16px; right: auto; transform: none; flex-direction: row-reverse; }
 
-        /* --- SPLASH SCREEN --- */
+
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(rgba(9, 11, 9, 0.4), rgba(9, 11, 9, 0.95)), url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1500') center/cover no-repeat; 
+            background: linear-gradient(rgba(9, 11, 9, 0.4), rgba(9, 11, 9, 0.95)), url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQRouU3XaCrDwnxBfVp6tfoJKVFvOxqwhynl9JtXdM83gLc1Uuef4LHt79&s=10') center/cover no-repeat; 
             z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; 
             transition: opacity 0.6s ease, visibility 0.6s; 
         }
@@ -78,7 +78,7 @@
         .lang-card:active { background: white; color: var(--bg-dark); }
         .lang-card span { font-size: 1.6rem; }
 
-        /* --- HOME EDITORIAL LAYOUT --- */
+
         #main-content { display: none; opacity: 0; transition: opacity 0.5s ease; width: 100%; }
         .hero-header { position: relative; height: 45vh; width: 100%; overflow: hidden; display: flex; align-items: flex-end; padding: 32px 24px; background: var(--bg-dark); }
         .hero-video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.65; }
@@ -91,7 +91,7 @@
         .section-header { font-size: 0.75rem; margin-bottom: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
         .section-header::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
         
-        /* PREMIUM CARDS */
+
         .premium-tour-card { background: var(--surface); border-radius: var(--radius-premium); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 24px; border: 1px solid var(--border); cursor: pointer; transition: var(--transition-smooth); }
         .card-img-wrapper { position: relative; height: 240px; overflow: hidden; background: #111; }
         .card-img { width: 100%; height: 100%; object-fit: cover; }
@@ -100,12 +100,12 @@
         .card-body h3 { font-size: 1.3rem; color: var(--primary); font-weight: 700; padding-right: 12px; }
         .card-arrow { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
 
-        /* PARAMETER MATRIX GRID */
+
         .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
         .metric-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--text-main); font-weight: 600; background: var(--bg-light); padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); }
         .metric-item svg { width: 16px; height: 16px; fill: none; stroke: var(--text-muted); stroke-width: 2; flex-shrink: 0; }
 
-        /* --- DESIGN BOTTOM MODAL --- */
+ 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9,11,9,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         
@@ -115,7 +115,7 @@
         
         .modal-content-scroll { overflow-y: auto; padding: 0 20px 140px 20px; flex-grow: 1; width: 100%; max-width: 600px; margin: 0 auto; -webkit-overflow-scrolling: touch; }
         
-        /* --- PREMIUM SLIDESHOW SYSTEM --- */
+
         .slideshow-wrapper { position: relative; width: 100%; height: 240px; border-radius: var(--radius-premium); overflow: hidden; margin-bottom: 20px; background: #000; }
         .slideshow-container { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .slideshow-container::-webkit-scrollbar { display: none; }
@@ -125,7 +125,7 @@
         .slide-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: var(--transition-smooth); }
         .slide-dot.active { background: #FFFFFF; width: 14px; border-radius: 4px; }
 
-        /* --- LIGHTBOX IMAGE ZOOM SYSTEM --- */
+
         .lightbox-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 4000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; }
         .lightbox-overlay.active { opacity: 1; visibility: visible; }
         .lightbox-img { max-width: 95%; max-height: 80vh; border-radius: 12px; object-fit: contain; transform: scale(0.9); transition: var(--transition-smooth); }
@@ -140,7 +140,7 @@
         .gear-card { background: var(--bg-light); border: 1px solid var(--border); padding: 12px 14px; border-radius: 14px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
         .gear-card svg { width: 16px; height: 16px; stroke: var(--accent); stroke-width: 2.5; fill: none; flex-shrink: 0; }
 
-        /* --- EMBEDDED CUSTOMIZER REGISTRATION --- */
+
         .param-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 800; margin-bottom: 14px; margin-top: 24px; display: flex; align-items: center; gap: 10px; }
         .param-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
         .form-group { margin-bottom: 16px; }
@@ -160,7 +160,7 @@
         .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .action-btn:not(:disabled):active { transform: scale(0.97); }
 
-        /* --- POPUP MODAL --- */
+
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; padding: 24px; }
         .popup-overlay.active { opacity: 1; visibility: visible; }
         
@@ -214,7 +214,7 @@
         <div class="modal-handle"></div>
         <div class="modal-content-scroll">
             
-            <!-- SWIPEABLE SLIDESHOW SYSTEM -->
+
             <div class="slideshow-wrapper">
                 <div class="slideshow-container" id="modal-slideshow-container" onscroll="updateSlideshowDots(this)"></div>
                 <div class="slideshow-nav" id="modal-slideshow-nav"></div>
@@ -226,10 +226,10 @@
             <div class="gear-section-title" id="modal-gear-title">What to Bring Along</div>
             <div class="gear-container" id="modal-gear-box"></div>
 
-            <!-- EMBEDDED SELECTION AREA -->
+
             <div class="param-title" id="modal-param-title">Quick Reservation</div>
             
-            <!-- DYNAMIC EXTENSION TRACK FOR ELIAS -->
+
             <div class="form-group" id="group-duration" style="display: none;">
                 <label id="lbl-duration">Ride Duration</label>
                 <div class="chip-flex-row" id="duration-chips-row"></div>
@@ -260,13 +260,13 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX ZOOM PREVIEW -->
+
     <div class="lightbox-overlay" id="lightbox-zoom" onclick="closeLightbox()">
         <div class="lightbox-close">&times;</div>
         <img class="lightbox-img" id="lightbox-target-img" src="" alt="Zoomed view">
     </div>
 
-    <!-- MESSENGER POPUP PICKER -->
+
     <div class="popup-overlay" id="contact-popup">
         <div class="popup-card">
             <button class="popup-close-x" onclick="dismissContactPopup()">&times;</button>
@@ -287,7 +287,7 @@
     </div>
 
     <script>
-        const WHATSAPP_NUMBER = "995555123456"; 
+        const WHATSAPP_NUMBER = "995597061232"; 
         const TELEGRAM_USERNAME = "aida697"; 
 
         let scrollPosition = 0;
@@ -367,7 +367,7 @@
                 extendedPriceVal: 100,
                 hasExtension: true,
                 images: ["https://i.postimg.cc/MGr0S1xy/5375375927610645398.jpg", "https://i.postimg.cc/FKnb40mG/5375375927610645399.jpg"],
-                en: { title: "Elias Church Tour", desc: "Take a beautiful trail line climbing up to the panoramic Saint Elias the Prophet Church vantage point.", metrics: ["Stechantsminda", "1 Hour / 1:30 Hours", "1-10 Person", "Easy"], gear: universalGear.en }, 
+                en: { title: "Elias Church Tour", desc: "Take a beautiful trail line climbing up to the panoramic Saint Elias the Prophet Church vantage point.", metrics: ["Stephantsminda", "1 Hour / 1:30 Hours", "1-10 Person", "Easy"], gear: universalGear.en }, 
                 ka: { title: "ელია წინასწარმეტყველის ტური", desc: "ულამაზესი საცხენოსნო მარშრუტი წმინდა ელია წინასწარმეტყველის მთის გადასახედზე.", metrics: ["სტეფანწმინდა", "1 სთ / 1:30 საათი", "1-10 ადამიანი", "მარტივი"], gear: universalGear.ka }, 
                 ru: { title: "Тур к Церкви Св. Илии", desc: "Красивый подъем верхом к панорамной смотровой площадке старинной церкви Святого Илии.", metrics: ["Степанцминда", "1 Час / 1:30 Часа", "1-10 Человек", "Легкая"], gear: universalGear.ru }, 
                 ar: { title: "جولة كنيسة إلياس", desc: "مسار صعود رائع ومميز للوصول إلى مطل كنيسة القديس إلياس النبي البانورامي.", metrics: ["ستيبلانتسميندا", "ساعة / ١:٣٠ ساعة", "١-١٠ شخص", "سهل"], gear: universalGear.ar } 
@@ -376,7 +376,7 @@
                 priceVal: 150, 
                 images: ["https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200", "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200"], 
                 en: { title: "Gallop Speed Ride", desc: "Designed strictly for experienced horse riders seeking high-energy gallop sessions through open step valleys.", metrics: ["Phansheti", "1:30 Hours", "1-10 Person", "Dynamic"], gear: universalGear.en }, 
-                ka: { title: "გალოპის ტური", desc: "აქტიური და სწრაფი საცხენოსნო ტური გამოცდილი მხედრებისთვის ღია ველებზე.", metrics: ["პანშეტი", "1:30 საათი", "1-10 ადამიანი", "დინამიური"], gear: universalGear.ka }, 
+                ka: { title: "გალოპის ტური", desc: "აქტიური და სწრაფი საცხენოსნო ტური გამოცდილი მხედრებისთვის ღია ველებზე.", metrics: ["ფანშეტი", "1:30 საათი", "1-10 ადამიანი", "დინამიური"], gear: universalGear.ka }, 
                 ru: { title: "Скоростной Галоп", desc: "Динамичный заезд исключительно для опытных всадников по широким открытым долинам.", metrics: ["Паншети", "1:30 Часа", "1-10 Человек", "Сложная"], gear: universalGear.ru }, 
                 ar: { title: "جولة ركض السريع (جალოპი)", desc: "رحلة حماسية مخصصة للخيالة ذوي الخبرة للركض السريع عبر السهول المفتوحة.", metrics: ["بانشيتي", "١:٣٠ ساعة", "١-١٠ شخص", "متقدم"], gear: universalGear.ar } 
             },
@@ -384,7 +384,7 @@
                 priceVal: 80, 
                 images: ["https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200", "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200"], 
                 en: { title: "Pansheti Pool Ride", desc: "A scenic valley level trek leading along natural streams to the historic location of Pansheti mineral pool.", metrics: ["Phansheti", "55 Min - 1:10 Hours", "1-10 Person", "Easy"], gear: universalGear.en }, 
-                ka: { title: "პანშეტის აუზი", desc: "ულამაზესი ხეობის მარშრუტი, რომელიც მიგიყვანთ პანშეტის მინერალურ აუზთან.", metrics: ["პანშეტი", "55 წთ - 1:10 საათი", "1-10 ადამიანი", "მარტივი"], gear: universalGear.ka }, 
+                ka: { title: "ფანშეტის აუზი", desc: "ულამაზესი ხეობის მარშრუტი, რომელიც მიგიყვანთ ფანშეტის მინერალურ აუზთან.", metrics: ["ფანშეტი", "55 წთ - 1:10 საათი", "1-10 ადამიანი", "მარტივი"], gear: universalGear.ka }, 
                 ru: { title: "Бассейн Паншети", desc: "Прогулка вдоль горных ручьев к историческому минеральному источнику в Паншети.", metrics: ["Паншети", "55 мин - 1:10 часа", "1-10 Человек", "Легкая"], gear: universalGear.ru }, 
                 ar: { title: "جولة مسبح بانشيتي", desc: "مسار هادئ بمحاذاة الجداول الطبيعية للوصول إلى مسبح بانشيتي المعدني التاريخي.", metrics: ["بانشيتي", "٥٥ دقيقة - ١:١٠ ساعة", "١-١٠ شخص", "سهل"], gear: universalGear.ar } 
             },
