@@ -252,7 +252,6 @@
         <div class="modal-handle"></div>
         <div class="modal-content-scroll">
             
-            <!-- SWIPEABLE SLIDESHOW SYSTEM -->
             <div class="slideshow-wrapper">
                 <div class="slideshow-container" id="modal-slideshow-container" onscroll="updateSlideshowDots()"></div>
                 <div class="slideshow-nav" id="modal-slideshow-nav"></div>
@@ -272,7 +271,6 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX ZOOM PREVIEW -->
     <div class="lightbox-overlay" id="lightbox-zoom" onclick="closeLightbox()">
         <div class="lightbox-close">&times;</div>
         <img class="lightbox-img" id="lightbox-target-img" src="" alt="Zoomed view">
@@ -337,29 +335,32 @@
                 document.body.style.top = '';
                 window.scrollTo(0, scrollPosition);
             }
-const firebaseConfig = {
-    apiKey: "AIzaSyBuufwbLbfu7t6peZzfuZjqHX0TCnKw_ps",
-    authDomain: "horseriding-20852.firebaseapp.com",
-    projectId: "horseriding-20852",
-    storageBucket: "horseriding-20852.firebasestorage.app",
-    messagingSenderId: "410539342211",
-    appId: "1:410539342211:web:0ca2229f0fbdd17ba0deb6",
-    measurementId: "G-63W9DSQ1Q6"
-};
+        }
 
-if (typeof firebase !== 'undefined') {
-    firebase.initializeApp(firebaseConfig);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuufwbLbfu7t6peZzfuZjqHX0TCnKw_ps",
+            authDomain: "horseriding-20852.firebaseapp.com",
+            projectId: "horseriding-20852",
+            storageBucket: "horseriding-20852.firebasestorage.app",
+            messagingSenderId: "410539342211",
+            appId: "1:410539342211:web:0ca2229f0fbdd17ba0deb6",
+            measurementId: "G-63W9DSQ1Q6"
+        };
 
-    window.db = firebase.firestore();
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().signInAnonymously()
-        .then(() => {
-            console.log("Anonymous login successful");
-        })
-        .catch((error) => {
-            console.error("Anonymous login failed:", error);
-        });
-}
+            window.db = firebase.firestore();
+
+            firebase.auth().signInAnonymously()
+                .then(() => {
+                    console.log("Anonymous login successful");
+                })
+                .catch((error) => {
+                    console.error("Anonymous login failed:", error);
+                });
+        }
+
         let chatId = localStorage.getItem('kazbegi_session_room') || 'room_' + Math.random().toString(36).substring(2, 11);
         localStorage.setItem('kazbegi_session_room', chatId);
 
@@ -382,7 +383,6 @@ if (typeof firebase !== 'undefined') {
             ka: {
                 heroTag: "სტეფანწმინდა, საქართველო", heroTitle: "ამხედრდით კავკასიონის მწვერვალებზე", secHeader: "შერჩეული ტურები",
                 gearTitle: "რა წავიღოთ ტურზე", bookBtn: "მორგება და ჩატის გახსნა", inputPlaceholder: "ჩაწერეთ კითხვა...",
-                chatWelcome: "გამარჯობა! კეთილი იყოს თქვენი მობრძანება. მონიშნეთ თქვენთვის სასურველი დრო ან მოგვწერეთ პირდაპირ ჩატში!",
                 chatWelcome: "გამარჯობა! კეთილი იყოს თქვენი მობრძანება. მონიშნეთ თქვენთვის სასურველი დრო ან მოგვწერეთ პირდაპირ ჩატში!",
                 paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი?",
                 dayToday: "დღეს", dayTomorrow: "ხვალ", riderSingle: "1 მხედარი", ownerStatus: "● კავშირი აქტიურია",
