@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazbegi Stables Master Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #090B09; 
+            --bg-light: #F4F6F4; 
+            --surface: #FFFFFF; 
+            --primary: #18221B;
+            --accent: #C5A880; 
+            --text-main: #1C221E; 
+            --text-muted: #737E76; 
+            --border: rgba(24, 34, 27, 0.08);
+            --radius-premium: 20px; 
+            --radius-pill: 100px;
+            --shadow-sm: 0 4px 20px rgba(24, 34, 27, 0.02);
+            --shadow-lg: 0 20px 50px rgba(9, 11, 9, 0.07);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+        }
+        
+        body { 
+            background-color: var(--bg-light); 
+            color: var(--text-main); 
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        h1, h2, h3, h4 { 
+            font-family: 'Syne', sans-serif; 
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- DASHBOARD LAYOUT SYSTEM --- */
+        .sidebar {
+            width: 360px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--primary);
+            color: white;
+        }
+        .sidebar-header h1 { font-size: 1.3rem; font-weight: 800; }
+        .sidebar-header p { color: var(--accent); font-size: 0.65rem; letter-spacing: 2px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+
+        .room-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .room-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .room-item:hover { background: rgba(24, 34, 27, 0.02); }
+        .room-item.active { background: rgba(197, 168, 128, 0.12); border-left: 4px solid var(--accent); }
+        
+        .room-meta { display: flex; justify-content: space-between; align-items: center; }
+        .room-id { font-size: 0.75rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
+        .room-time { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
+        .room-preview { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+
+        /* --- DETAIL WORKSPACE --- */
+        .workspace {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-light);
+            position: relative;
+        }
+
+        .no-chat-selected {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-muted); background: var(--bg-light); gap: 12px;
+            z-index: 1;
+        }
+        .no-chat-selected h3 { font-size: 1rem; letter-spacing: 1px; color: var(--primary); }
+
+        .workspace-header {
+            background: var(--surface);
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            z-index: 2;
+        }
+        .workspace-title { display: flex; align-items: center; gap: 12px; }
+        .back-list-btn { display: none; background: var(--bg-light); border: 1px solid var(--border); cursor: pointer; color: var(--text-main); align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; }
+
+        /* DEEP ROUTED QUICK INTERACTION CHIPS */
+        .external-route-box { display: flex; gap: 8px; }
+        .action-chip-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: var(--transition-smooth); }
+        .action-chip-btn.whatsapp { background: #25D366; }
+        .action-chip-btn:active { transform: scale(0.95); }
+
+        .chat-stream { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            -webkit-overflow-scrolling: touch;
+            z-index: 2;
+        }
+
+        /* MASTER BUBBLE COMPONENT */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
+        .msg-wrapper.user { align-self: flex-start; }
+        .msg-wrapper.owner { align-self: flex-end; }
+        .msg-bubble { padding: 14px 18px; border-radius: var(--radius-premium); font-size: 0.9rem; line-height: 1.5; width: 100%; font-weight: 500; position: relative; }
+        
+        .msg-user .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; }
+        /* Automatic highlighting formatting for incoming systemic reservation payloads */
+        .msg-user.payload-format .msg-bubble { background: #FFFDF3; border: 1px dashed var(--accent); color: var(--primary); font-weight: 600; }
+        .msg-owner .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
+        
+        .msg-meta { display: flex; align-items: center; gap: 4px; font-size: 0.6rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+        .msg-owner .msg-meta { justify-content: flex-end; }
+
+        .chat-input-bar { background: var(--surface); padding: 16px 24px 28px 24px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border); z-index: 2; }
+        .chat-input-field { flex-grow: 1; border: 1px solid var(--border); padding: 14px 20px; border-radius: var(--radius-pill); outline: none; font-size: 0.9rem; background: var(--bg-light); font-weight: 500; }
+        .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
+        .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+
+        /* --- RESPONSIVE MOBILE HANDLERS --- */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; }
+            .workspace { position: fixed; top: 0; left: 0; width: 100vw; height: 100%; transform: translateX(100%); transition: var(--transition-smooth); z-index: 20; }
+            .workspace.active { transform: translateX(0); }
+            .back-list-btn { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MASTER SIDEBAR CHAT DIRECTORY -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Giorgi's Stables</h1>
+            <p>Live Rider Inquiries Console</p>
+        </div>
+        <div class="room-list" id="master-rooms-container">
+            <!-- Dynamically populated room objects -->
+        </div>
+    </div>
+
+    <!-- DETAIL CONSOLE WORKSPACE -->
+    <div class="workspace" id="detail-workspace">
+        <div class="no-chat-selected" id="blank-slate-view">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <h3>No Session Selected</h3>
+            <p style="font-size:0.8rem;">Select an incoming line from the directory sidebar to respond</p>
+        </div>
+
+        <div class="workspace-header">
+            <div class="workspace-title">
+                <button class="back-list-btn" onclick="exitWorkspaceDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                <h4 id="active-panel-title" style="font-size:1rem; color:var(--primary);">Session</h4>
+            </div>
+            <div class="external-route-box" id="external-route-actions">
+                <!-- Smart Deep Route Links (WhatsApp/Telegram triggers) appear here -->
+            </div>
+        </div>
+
+        <div class="chat-stream" id="owner-stream-box"></div>
+
+        <div class="chat-input-bar">
+            <input type="text" class="chat-input-field" id="owner-reply-field" placeholder="Type reply to rider..." onkeydown="if(event.key === 'Enter') dispatchOwnerReply()">
+            <button class="send-chat-btn" onclick="dispatchOwnerReply()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+        </div>
+    </div>
+
+    <script>
+        // Copy exact Firebase configuration parameters from user app
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuufwbLbfu7t6peZzfuZjqHX0TCnKw_ps",
+            authDomain: "horseriding-20852.firebaseapp.com",
+            projectId: "horseriding-20852",
+            storageBucket: "horseriding-20852.firebasestorage.app",
+            messagingSenderId: "410539342211",
+            appId: "1:410539342211:web:0ca2229f0fbdd17ba0deb6",
+            measurementId: "G-63W9DSQ1Q6"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let activeRoomId = null;
+        let activeMessagesUnsubscribe = null;
+
+        // Auto Authenticate Dashboard Session Anonymous admin tunnel
+        firebase.auth().signInAnonymously().then(() => {
+            listenToActiveRooms();
+        });
+
+        // --- ROOMS DIRECTORY REALTIME PIPELINE ---
+        function listenToActiveRooms() {
+            db.collection("conversations").orderBy("lastActive", "desc").onSnapshot(snapshot => {
+                const container = document.getElementById('master-rooms-container');
+                container.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `<div style="padding:40px; text-align:center; font-size:0.8rem; color:var(--text-muted);">No active rides requested yet</div>`;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const roomId = doc.id;
+                    const timestamp = data.lastActive ? new Date(data.lastActive.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    
+                    const item = document.createElement('div');
+                    item.className = `room-item ${roomId === activeRoomId ? 'active' : ''}`;
+                    item.setAttribute('id', `room-card-${roomId}`);
+                    item.onclick = () => loadChatWorkspace(roomId);
+                    
+                    item.innerHTML = `
+                        <div class="room-meta">
+                            <span class="room-id">${roomId.toUpperCase()}</span>
+                            <span class="room-time">${timestamp}</span>
+                        </div>
+                        <div class="room-preview" id="preview-${roomId}">Monitoring trail line...</div>
+                    `;
+                    container.appendChild(item);
+
+                    // Fetch individual chat tail content to form side text previews
+                    db.collection("conversations").doc(roomId).collection("messages")
+                      .orderBy("timestamp", "desc").limit(1).get().then(msgSnap => {
+                          if(!msgSnap.empty) {
+                              const mData = msgSnap.docs[0].data();
+                              document.getElementById(`preview-${roomId}`).textContent = mData.text;
+                          }
+                      });
+                });
+            });
+        }
+
+        // --- CHAT CONSOLE DETAILED FEED ---
+        function loadChatWorkspace(roomId) {
+            activeRoomId = roomId;
+            
+            // Manage targeted highlighting modifications on DOM elements
+            document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+            const dynamicCard = document.getElementById(`room-card-${roomId}`);
+            if(dynamicCard) dynamicCard.classList.add('active');
+
+            document.getElementById('blank-slate-view').style.display = 'none';
+            document.getElementById('detail-workspace').classList.add('active');
+            document.getElementById('active-panel-title').textContent = `Line: ${roomId.toUpperCase()}`;
+            
+            // Clean interface before subscribing
+            if(activeMessagesUnsubscribe) activeMessagesUnsubscribe();
+            document.getElementById('owner-stream-box').innerHTML = '';
+            document.getElementById('external-route-actions').innerHTML = '';
+
+            // Real-time conversation stream synchronization pipeline hook
+            activeMessagesUnsubscribe = db.collection("conversations").doc(roomId).collection("messages")
+                .orderBy("timestamp", "asc").onSnapshot(snapshot => {
+                    const stream = document.getElementById('owner-stream-box');
+                    stream.innerHTML = '';
+                    
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const isOwner = msg.sender === 'owner';
+                        const isPayload = msg.text.includes("Payload:") || msg.text.includes("Contact Point:");
+                        
+                        const wrapper = document.createElement('div');
+                        wrapper.className = `msg-wrapper ${isOwner ? 'owner msg-owner' : 'user msg-user'} ${isPayload ? 'payload-format' : ''}`;
+                        
+                        const timeString = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                        
+                        wrapper.innerHTML = `
+                            <div class="msg-bubble">${msg.text}</div>
+                            <div class="msg-meta">${timeString}</div>
+                        `;
+                        stream.appendChild(wrapper);
+
+                        // Parse string text dynamically to build action launcher shortcuts
+                        if (msg.text.includes("Lead Contact Point:")) {
+                            parseActionLauncherShortcuts(msg.text);
+                        }
+                    });
+                    stream.scrollTop = stream.scrollHeight;
+                });
+        }
+
+        // --- DEEP LINK SMART ROUTER ---
+        function parseActionLauncherShortcuts(text) {
+            const container = document.getElementById('external-route-actions');
+            container.innerHTML = ''; // reset container
+            
+            try {
+                const messengerType = text.match(/\[(.*?)\]/)[1]; 
+                const phoneNum = text.split(']').pop().trim();   
+                
+                if (messengerType === 'WhatsApp') {
+                    const cleanPhone = phoneNum.replace(/[^0-9]/g, '');
+                    container.innerHTML = `
+                        <a href="https://wa.me/${cleanPhone}" target="_blank" class="action-chip-btn whatsapp">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-4.846c1.66.986 3.295 1.494 5.348 1.495 5.482 0 9.943-4.44 9.947-9.925.002-2.657-1.02-5.155-2.877-7.015s-4.343-2.88-6.999-2.88c-5.49 0-9.953 4.441-9.957 9.925a9.895 9.895 0 0 0 1.51 5.06l-.183.668-.94 3.433 3.517-.923zm13.102-7.404c-.31-.154-1.834-.905-2.119-1.008-.285-.104-.493-.154-.7.154-.207.31-.803.104-.984.154s-.362-.051-.672-.206c-1.307-.656-2.129-1.636-2.387-2.08-.259-.444-.028-.684.195-.905.2-.199.44-.515.66-.773.22-.258.293-.44.44-.734.146-.294.073-.55-.036-.757-.109-.207-.7-.154-1.285-.154z"/></svg>
+                            Open WhatsApp (${phoneNum})
+                        </a>
+                    `;
+                }
+            } catch(e) {
+                console.log("No deep-link shortcut context match located inside text string standard layout pattern rules.");
+            }
+        }
+
+        // --- OUTBOUND MESSAGE DISPATCH ENGINE ---
+        function dispatchOwnerReply() {
+            const input = document.getElementById('owner-reply-field');
+            const txt = input.value.trim();
+            if(!txt || !activeRoomId) return;
+
+            db.collection("conversations").doc(activeRoomId).set({ lastActive: new Date() }, { merge: true });
+            db.collection("conversations").doc(activeRoomId).collection("messages").add({
+                text: txt,
+                sender: "owner",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        function exitWorkspaceDetail() {
+            document.getElementById('detail-workspace').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
