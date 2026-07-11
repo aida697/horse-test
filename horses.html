@@ -287,7 +287,7 @@
     <script>
         // Configuration: Set your professional messenger destination handles here
         const WHATSAPP_NUMBER = "995555123456"; // Include Country Code, No spaces, No pluses (+)
-        const TELEGRAM_USERNAME = "aida697"; // Your active Telegram Handle without @
+        const TELEGRAM_USERNAME = "aida697"; // Your exact telegram handle without the @
 
         let scrollPosition = 0;
         const setVhMetric = () => {
@@ -321,7 +321,7 @@
                 paramTitle: "Quick Reservation", mDay: "When", mTime: "Preferred Time", mRiders: "How many riders?",
                 dayToday: "Today", dayTomorrow: "Tomorrow", riderSingle: "1 Rider",
                 months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                popTitle: "Confirm Your Ride", popDesc: "Choose your platform to instantly bridge deep-links and complete plans with Giorgi."
+                popTitle: "Confirm Your Ride", popDesc: "Choose your platform to instantly bridge deep-links and complete plans."
             },
             ka: {
                 heroTag: "სტეფანწმინდა, საქართველო", heroTitle: "ამხედრდით კავკასიონის მწვერვალებზე", secHeader: "შერჩეული ტურები",
@@ -329,7 +329,7 @@
                 paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი?",
                 dayToday: "დღეს", dayTomorrow: "ხვალ", riderSingle: "1 მხედარი",
                 months: ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"],
-                popTitle: "დაადასტურეთ ჯავშანი", popDesc: "აირჩიეთ სასურველი აპლიკაცია გიორგისთან დასაკავშირებლად და დეტალების დასაზუსტებლად."
+                popTitle: "დაადასტურეთ ჯავშანი", popDesc: "აირჩიეთ სასურველი აპლიკაცია დასაკავშირებლად და დეტალების დასაზუსტებლად."
             },
             ru: {
                 heroTag: "Степанцминда, Грузия", heroTitle: "Прогулки верхом по вершинам Кавказа", secHeader: "Популярные Маршруты",
@@ -337,7 +337,7 @@
                 paramTitle: "Быстрое Бронирование", mDay: "Когда", mTime: "Удобное время", mRiders: "Сколько человек?",
                 dayToday: "Сегодня", dayTomorrow: "Завтра", riderSingle: "1 Всадник",
                 months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-                popTitle: "Подтверждение брони", popDesc: "Выберите мессенджер для мгновенной связи с Георгием и фиксации маршрута."
+                popTitle: "Подтверждение брони", popDesc: "Выберите мессенджер для мгновенной связи и фиксации маршрута."
             },
             ar: {
                 heroTag: "ستيبلانتسميندا، جورجيا", heroTitle: "اركبو الخيل في قمم القوقاز", secHeader: "الرحلات المختارة",
@@ -345,7 +345,7 @@
                 paramTitle: "حجز سريع", mDay: "متى", mTime: "الوقت المفضل", mRiders: "عدد الأشخاص؟",
                 dayToday: "اليوم", dayTomorrow: "غداً", riderSingle: "راِكب واحد",
                 months: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
-                popTitle: "تأكيد الحجز", popDesc: "اختر المنصة المفضلة لديك للتواصل الفوري مع جيورجي وتنسيق مسار اللقاء."
+                popTitle: "تأكيد الحجز", popDesc: "اختر المنصة المفضلة لديك للتواصل الفوري وتنسيق مسار اللقاء."
             }
         };
 
@@ -590,8 +590,8 @@
             if (platform === 'whatsapp') {
                 finalUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
             } else if (platform === 'telegram') {
-                // Modified to use share URL layout ensuring personal handles parse the text payload reliably
-                finalUrl = `https://t.me/share/url?url=https://t.me/${TELEGRAM_USERNAME}&text=${encodedText}`;
+                // Resolved format forces mobile applications to directly prompt the custom string draft inside your thread
+                finalUrl = `https://t.me/${TELEGRAM_USERNAME}?text=${encodedText}`;
             }
 
             if(finalUrl) {
