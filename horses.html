@@ -195,7 +195,7 @@
 
     <div id="main-content">
         <div class="hero-header">
-            <img class="hero-video-bg" src="https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1080" alt="Hero background">
+            <img class="hero-video-bg" src="https://gamarjobageorgiatours.com/wp-content/uploads/2024/10/photo-3.jpeg" alt="Hero background">
             <div class="hero-overlay"></div>
             <div class="hero-text">
                 <p id="hero-tag">Stepantsminda, Georgia</p>
@@ -223,11 +223,18 @@
             <h2 id="modal-title" style="font-size: 1.5rem; margin-bottom: 14px; color: var(--primary);"></h2>
             <div class="metric-grid" id="modal-metric-box"></div>
             <p id="modal-desc" class="modal-description"></p>
-            <div class="gear-section-title" id="modal-gear-title">What to Bring along</div>
+            <div class="gear-section-title" id="modal-gear-title">What to Bring Along</div>
             <div class="gear-container" id="modal-gear-box"></div>
 
             <!-- EMBEDDED SELECTION AREA -->
             <div class="param-title" id="modal-param-title">Quick Reservation</div>
+            
+            <!-- DYNAMIC EXTENSION TRACK FOR ELIAS -->
+            <div class="form-group" id="group-duration" style="display: none;">
+                <label id="lbl-duration">Ride Duration</label>
+                <div class="chip-flex-row" id="duration-chips-row"></div>
+            </div>
+
             <div class="form-group">
                 <label id="lbl-day">When</label>
                 <div class="chip-flex-row" id="day-chips-row"></div>
@@ -243,12 +250,7 @@
             </div>
             <div class="form-group">
                 <label id="lbl-riders">How many riders?</label>
-                <div class="chip-flex-row" id="rider-chips-row">
-                    <div class="luxury-chip" onclick="selectParam(this, 'riders', '1')" id="chip-single-rider">1 Rider</div>
-                    <div class="luxury-chip" onclick="selectParam(this, 'riders', '2')">2</div>
-                    <div class="luxury-chip" onclick="selectParam(this, 'riders', '3')">3</div>
-                    <div class="luxury-chip" onclick="selectParam(this, 'riders', '4+')">4+</div>
-                </div>
+                <div class="chip-flex-row" id="rider-chips-row"></div>
             </div>
         </div>
         <div class="fixed-modal-footer">
@@ -269,7 +271,7 @@
         <div class="popup-card">
             <button class="popup-close-x" onclick="dismissContactPopup()">&times;</button>
             <h4 id="pop-title">Confirm Your Ride</h4>
-            <p id="pop-desc">Choose a platform to instantly connect and finalize paths with Giorgi.</p>
+            <p id="pop-desc">Choose a platform to instantly connect and finalize paths with Dato.</p>
             
             <div class="messenger-tags">
                 <button class="messenger-btn whatsapp" onclick="redirectToMessenger('whatsapp')">
@@ -285,9 +287,8 @@
     </div>
 
     <script>
-        // Configuration: Set your professional messenger destination handles here
-        const WHATSAPP_NUMBER = "995555123456"; // Include Country Code, No spaces, No pluses (+)
-        const TELEGRAM_USERNAME = "aida697"; // Your exact telegram handle without the @
+        const WHATSAPP_NUMBER = "995555123456"; 
+        const TELEGRAM_USERNAME = "aida697"; 
 
         let scrollPosition = 0;
         const setVhMetric = () => {
@@ -312,77 +313,96 @@
 
         let currentLanguage = 'en';
         let selectedTourKey = '';
-        let chosenDay = '', chosenTime = '', chosenRiders = '';
+        let chosenDay = '', chosenTime = '', chosenRiders = 0, chosenDuration = '1h';
 
         const uiDictionary = {
             en: {
                 heroTag: "Stepantsminda, Georgia", heroTitle: "Ride into the Caucasus Peaks", secHeader: "Selected Journeys",
                 gearTitle: "What to Bring Along", bookBtnDefault: "Customize Options to Secure Saddle", bookBtnReady: "Connect & Book Destination Live",
-                paramTitle: "Quick Reservation", mDay: "When", mTime: "Preferred Time", mRiders: "How many riders?",
-                dayToday: "Today", dayTomorrow: "Tomorrow", riderSingle: "1 Rider",
+                paramTitle: "Quick Reservation", mDay: "When", mTime: "Preferred Time", mRiders: "How many riders? (1-10 Person)",
+                dayToday: "Today", dayTomorrow: "Tomorrow", riderLabel: "Person", ridersLabel: "Person",
                 months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                popTitle: "Confirm Your Ride", popDesc: "Choose your platform to instantly bridge deep-links and complete plans."
+                popTitle: "Confirm Your Ride", popDesc: "Choose your platform to instantly bridge deep-links and complete plans.",
+                lblDuration: "Select Ride Duration", optStandard: "1 Hour (Standard)", optExtended: "1:30 Hours (Extended)"
             },
             ka: {
                 heroTag: "სტეფანწმინდა, საქართველო", heroTitle: "ამხედრდით კავკასიონის მწვერვალებზე", secHeader: "შერჩეული ტურები",
                 gearTitle: "რა წავიღოთ ტურზე", bookBtnDefault: "შეავსეთ მონაცემები დასაჯავშნად", bookBtnReady: "ჯავშნის დაწყება მესენჯერით",
-                paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი?",
-                dayToday: "დღეს", dayTomorrow: "ხვალ", riderSingle: "1 მხედარი",
+                paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი? (1-10 ადამიანი)",
+                dayToday: "დღეს", dayTomorrow: "ხვალ", riderLabel: "კაცი", ridersLabel: "კაცი",
                 months: ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"],
-                popTitle: "დაადასტურეთ ჯავშანი", popDesc: "აირჩიეთ სასურველი აპლიკაცია დასაკავშირებლად და დეტალების დასაზუსტებლად."
+                popTitle: "დაადასტურეთ ჯავშანი", popDesc: "აირჩიეთ სასურველი აპლიკაცია დასაკავშირებლად და დეტალების დასაზუსტებლად.",
+                lblDuration: "ხანგრძლივობის არჩევა", optStandard: "1 საათი (სტანდარტული)", optExtended: "1:30 საათი (გაგრძელებული)"
             },
             ru: {
                 heroTag: "Степанцминда, Грузия", heroTitle: "Прогулки верхом по вершинам Кавказа", secHeader: "Популярные Маршруты",
                 gearTitle: "Что взять с собой", bookBtnDefault: "Выберите параметры для брони", bookBtnReady: "Связаться и забронировать",
-                paramTitle: "Быстрое Бронирование", mDay: "Когда", mTime: "Удобное время", mRiders: "Сколько человек?",
-                dayToday: "Сегодня", dayTomorrow: "Завтра", riderSingle: "1 Всадник",
+                paramTitle: "Быстрое Бронирование", mDay: "Когда", mTime: "Удобное время", mRiders: "Сколько человек? (1-10 Человек)",
+                dayToday: "Сегодня", dayTomorrow: "Завтра", riderLabel: "Человек", ridersLabel: "Человек",
                 months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-                popTitle: "Подтверждение брони", popDesc: "Выберите мессенджер для мгновенной связи и фиксации маршрута."
+                popTitle: "Подтверждение брони", popDesc: "Выберите мессенджер для мгновенной связи и фиксации маршрута.",
+                lblDuration: "Длительность прогулки", optStandard: "1 Час (Стандарт)", optExtended: "1:30 Часа (Продленный)"
             },
             ar: {
                 heroTag: "ستيبلانتسميندا، جورجيا", heroTitle: "اركبو الخيل في قمم القوقاز", secHeader: "الرحلات المختارة",
                 gearTitle: "ماذا تجلب معك", bookBtnDefault: "حدد الخيارات المتاحة للتأكيد", bookBtnReady: "تواصل واحجز رحلتك الآن",
-                paramTitle: "حجز سريع", mDay: "متى", mTime: "الوقت المفضل", mRiders: "عدد الأشخاص؟",
-                dayToday: "اليوم", dayTomorrow: "غداً", riderSingle: "راِكب واحد",
+                paramTitle: "حجز سريع", mDay: "متى", mTime: "الوقت المفضل", mRiders: "عدد الأشخاص؟ (١-١٠ شخص)",
+                dayToday: "اليوم", dayTomorrow: "غداً", riderLabel: "شخص", ridersLabel: "شخص",
                 months: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
-                popTitle: "تأكيد الحجز", popDesc: "اختر المنصة المفضلة لديك للتواصل الفوري وتنسيق مسار اللقاء."
+                popTitle: "تأكيد الحجز", popDesc: "اختر المنصة المفضلة لديك للتواصل الفوري وتنسيق مسار اللقاء.",
+                lblDuration: "مدة الرحلة", optStandard: "ساعة واحدة (عادي)", optExtended: "١:٣٠ ساعة (ممدد)"
             }
         };
 
+        const universalGear = {
+            en: ["Wind jacket", "Sport shoes", "Waterproof jacket", "Comfortable trousers"],
+            ka: ["ქარსაცავი ქურთუკი", "სპორტული ფეხსაცმელი", "საწვიმარი ქურთუკი", "მოხერხებული შარვალი"],
+            ru: ["Ветрозащитная куртка", "Спортивная обувь", "Дождевик", "Удобные брюки"],
+            ar: ["سترة واقية", "حذاء رياضي", "غطاء مقاوم للمطر", "بنطال مريح"]
+        };
+
         const tourDatabase = {
-            gergeti: { 
-                price: "70 GEL", 
-                images: [
-                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
-                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
-                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"
-                ], 
-                en: { title: "Gergeti Trinity Tour", desc: "Ride up through deep alpine paths toward the historic Gergeti Trinity Church sitting right below Mt. Kazbek.", metrics: ["10 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Comfortable trousers", "Wind jacket"] }, 
-                ka: { title: "გერგეტის სამება", desc: "ავიდეთ ისტორიულ გერგეტის სამებამდე მყინვარწვერის კალთებზე.", metrics: ["10 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "შარვალი", "ქურთუკი"] }, 
-                ru: { title: "Гергети", desc: "Поднимитесь верхом к легендарной Троицкой церкви у подножия Казбека.", metrics: ["10 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Брюки", "Ветровка"] }, 
-                ar: { title: "جولة كنيسة جيرجيتي", desc: "اصعد على متن الخيل عبر الممرات الجبلية العميقة نحو كنيسة جيرجيتي التاريخية.", metrics: ["١٠ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء رياضى", "بنطال مريح", "سترة مقاومة للرياح"] } 
-            },
             elias: { 
-                price: "60 GEL", 
-                images: [
-                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
-                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200"
-                ], 
-                en: { title: "Elias Church Riding Tour", desc: "Take a peaceful horseback trail to the magnificent high vantage point of Saint Elias the Prophet Church.", metrics: ["8 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Warm layers"] }, 
-                ka: { title: "ელია წინასწარმეტყველის ეკლესია", desc: "მშვიდი საცხენოსნო ტური წმინდა ელიას ეკლესიის პანორამულ გადასახედზე.", metrics: ["8 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "თბილი ტანსაცმელი"] }, 
-                ru: { title: "Церковь Ильи", desc: "Спокойная конная прогулка к красивейшей смотровой площадке церкви Святого Илии.", metrics: ["8 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Теплая одежда"] }, 
-                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء رياضي", "ملابس دافئة"] } 
+                priceVal: 70, 
+                extendedPriceVal: 100,
+                hasExtension: true,
+                images: ["https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200", "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200"], 
+                en: { title: "Elias Church Tour", desc: "Take a beautiful trail line climbing up to the panoramic Saint Elias the Prophet Church vantage point.", metrics: ["Stechantsminda", "1 Hour / 1:30 Hours", "1-10 Person", "Easy"], gear: universalGear.en }, 
+                ka: { title: "ელია წინასწარმეტყველის ტური", desc: "ულამაზესი საცხენოსნო მარშრუტი წმინდა ელია წინასწარმეტყველის მთის გადასახედზე.", metrics: ["სტეფანწმინდა", "1 სთ / 1:30 საათი", "1-10 ადამიანი", "მარტივი"], gear: universalGear.ka }, 
+                ru: { title: "Тур к Церкви Св. Илии", desc: "Красивый подъем верхом к панорамной смотровой площадке старинной церкви Святого Илии.", metrics: ["Степанцминда", "1 Час / 1:30 Часа", "1-10 Человек", "Легкая"], gear: universalGear.ru }, 
+                ar: { title: "جولة كنيسة إلياس", desc: "مسار صعود رائع ومميز للوصول إلى مطل كنيسة القديس إلياس النبي البانورامي.", metrics: ["ستيبلانتسميندا", "ساعة / ١:٣٠ ساعة", "١-١٠ شخص", "سهل"], gear: universalGear.ar } 
             },
-            gveleti: { 
-                price: "150 GEL", 
-                images: [
-                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
-                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200"
-                ], 
-                en: { title: "Gveleti Waterfall Expedition", desc: "A thrilling ride through rocky terrain into the dramatic Gveleti canyon to witness the powerful falls.", metrics: ["18 KM", "3.50 Hours", "1-8 Persons", "Moderate"], gear: ["Hiking boots", "Waterproof jacket", "Sunscreen"] }, 
-                ka: { title: "გველეთის ჩანჩქერი", desc: "ამაღელვებელი საცხენოსნო მარშრუტი კლდოვან კანიონში გველეთის ულამაზეს ჩანჩქერამდე.", metrics: ["18 კმ", "3.50 საათი", "1-8 კაცი", "საშუალო"], gear: ["სალაშქრო ფეხსაცმელი", "საწვიმარი", "მზის კრემი"] }, 
-                ru: { title: "Гвелетский Водопад", desc: "Увлекательная экспедиция по скалистому ущелью к мощному горному водопаду Гвелети.", metrics: ["18 КМ", "3.50 Часа", "1-8 Чел", "Средняя"], gear: ["Треккинг обувь", "Ветровка", "Солнцезащитный крем"] }, 
-                ar: { title: "رحلة شلال غفيليتي", desc: "جولة مثيرة لركوب الخيل عبر الممرات الصخرية في وادي غفيليتي الخلاب لمشاهدة الشلال الغزير.", metrics: ["١٨ كم", "٣.٥٠ ساعة", "١-٨ أشخاص", "متوسط"], gear: ["حذاء للمشي", "سترة واقية من الماء", "واقي شمس"] } 
+            gallop: { 
+                priceVal: 150, 
+                images: ["https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200", "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200"], 
+                en: { title: "Gallop Speed Ride", desc: "Designed strictly for experienced horse riders seeking high-energy gallop sessions through open step valleys.", metrics: ["Phansheti", "1:30 Hours", "1-10 Person", "Dynamic"], gear: universalGear.en }, 
+                ka: { title: "გალოპის ტური", desc: "აქტიური და სწრაფი საცხენოსნო ტური გამოცდილი მხედრებისთვის ღია ველებზე.", metrics: ["პანშეტი", "1:30 საათი", "1-10 ადამიანი", "დინამიური"], gear: universalGear.ka }, 
+                ru: { title: "Скоростной Галоп", desc: "Динамичный заезд исключительно для опытных всадников по широким открытым долинам.", metrics: ["Паншети", "1:30 Часа", "1-10 Человек", "Сложная"], gear: universalGear.ru }, 
+                ar: { title: "جولة ركض السريع (جალოპი)", desc: "رحلة حماسية مخصصة للخيالة ذوي الخبرة للركض السريع عبر السهول المفتوحة.", metrics: ["بانشيتي", "١:٣٠ ساعة", "١-١٠ شخص", "متقدم"], gear: universalGear.ar } 
+            },
+            pansheti: { 
+                priceVal: 80, 
+                images: ["https://images.unsplash.com/photo-107525428034-b723cf961d3e?q=80&w=1200", "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200"], 
+                en: { title: "Pansheti Pool Ride", desc: "A scenic valley level trek leading along natural streams to the historic location of Pansheti mineral pool.", metrics: ["Phansheti", "55 Min - 1:10 Hours", "1-10 Person", "Easy"], gear: universalGear.en }, 
+                ka: { title: "პანშეტის აუზი", desc: "ულამაზესი ხეობის მარშრუტი, რომელიც მიგიყვანთ პანშეტის მინერალურ აუზთან.", metrics: ["პანშეტი", "55 წთ - 1:10 საათი", "1-10 ადამიანი", "მარტივი"], gear: universalGear.ka }, 
+                ru: { title: "Бассейн Паншети", desc: "Прогулка вдоль горных ручьев к историческому минеральному источнику в Паншети.", metrics: ["Паншети", "55 мин - 1:10 часа", "1-10 Человек", "Легкая"], gear: universalGear.ru }, 
+                ar: { title: "جولة مسبح بانشيتي", desc: "مسار هادئ بمحاذاة الجداول الطبيعية للوصول إلى مسبح بانشيتي المعدني التاريخي.", metrics: ["بانشيتي", "٥٥ دقيقة - ١:١٠ ساعة", "١-١٠ شخص", "سهل"], gear: universalGear.ar } 
+            },
+            gergeti: { 
+                priceVal: 200, 
+                images: ["https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200", "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200"], 
+                en: { title: "Gergeti Trinity Church", desc: "An iconic mountain climb navigating beautiful alpine forest trails right beneath Mt. Kazbek's peak.", metrics: ["Gergeti", "2 - 3 Hours", "1-10 Person", "Moderate"], gear: universalGear.en }, 
+                ka: { title: "გერგეტის სამების ტური", desc: "ლეგენდარული საცხენოსნო ტური ტყის მარშრუტებით გერგეტის სამების დიდებულ ტაძრამდე.", metrics: ["გერგეტი", "2 - 3 საათი", "1-10 ადამიანი", "საშუალო"], gear: universalGear.ka },
+                ru: { title: "Гергетская Троица", desc: "Знаменитый подъем по лесным тропам к подножию заснеженного великана Казбека.", metrics: ["Гергети", "2 - 3 Часа", "1-10 Человек", "Средняя"], gear: universalGear.ru }, 
+                ar: { title: "كنيسة გერგეტის სამება", desc: "صعود جبلي رائع عبر مسارات الغابات الألبيّة للوصول لقمة كنيسة الثالوث تحت جبل كازبيك.", metrics: ["جيرجيتي", "٢ - ٣ ساعات", "١-١٠ شخص", "متوسط"], gear: universalGear.ar } 
+            },
+            arsha: { 
+                priceVal: 250, 
+                images: ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200", "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"], 
+                en: { title: "Arsha Waterfall Expedition", desc: "An extended adventure deep into the wilderness canyon routes crossing rivers to reach Arsha falls.", metrics: ["Arsha", "3 - 4 Hours", "1-10 Person", "Advanced"], gear: universalGear.en }, 
+                ka: { title: "არშის ჩანჩქერის ექსპედიცია", desc: "ხანგრძლივი სათავგადასავლო ტური კლდოვან კანიონში ულამაზეს არშის ჩანჩქერებამდე.", metrics: ["არშა", "3 - 4 საათი", "1-10 ადამიანი", "რთული"], gear: universalGear.ka }, 
+                ru: { title: "Водопады Арша", desc: "Длительная захватывающая конная экспедиция по ущелью со скрещиванием горных речушек.", metrics: ["Арша", "3 - 4 Часа", "1-10 Человек", "Сложная"], gear: universalGear.ru }, 
+                ar: { title: "رحلة شلالات أرشا", desc: "مغامرة ممتعة وطويلة في عمق الممرات الصخرية وعبور الجداول للوصول إلى شلال أرشا.", metrics: ["أرشا", "٣ - ٤ ساعات", "١-١٠ شخص", "متقدم"], gear: universalGear.ar } 
             }
         };
 
@@ -396,17 +416,18 @@
             document.getElementById('sec-header').textContent = dict.secHeader;
             document.getElementById('modal-gear-title').textContent = dict.gearTitle;
             document.getElementById('modal-param-title').textContent = dict.paramTitle;
+            document.getElementById('lbl-duration').textContent = dict.lblDuration;
             
             document.getElementById('lbl-day').textContent = dict.mDay;
             document.getElementById('lbl-time').textContent = dict.mTime;
             document.getElementById('lbl-riders').textContent = dict.mRiders;
-            document.getElementById('chip-single-rider').textContent = dict.riderSingle;
             
             document.getElementById('pop-title').textContent = dict.popTitle;
             document.getElementById('pop-desc').textContent = dict.popDesc;
 
             renderTourCatalog();
             buildCalendarChips();
+            buildRiderChips();
             updateActionButtonState();
             
             const splash = document.getElementById('splash-screen');
@@ -431,7 +452,7 @@
                 card.innerHTML = `
                     <div class="card-img-wrapper">
                         <img class="card-img" src="${tour.images[0]}" alt="${localized.title}" loading="lazy">
-                        <div class="card-price-tag">${tour.price}</div>
+                        <div class="card-price-tag">${tour.priceVal}${key === 'elias' ? ' - ' + tour.extendedPriceVal : ''} GEL</div>
                     </div>
                     <div class="card-body">
                         <h3>${localized.title}</h3>
@@ -472,14 +493,41 @@
             }
         }
 
+        function buildRiderChips() {
+            const dict = uiDictionary[currentLanguage];
+            const container = document.getElementById('rider-chips-row');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                container.innerHTML += `<div class="luxury-chip" onclick="selectParam(this, 'riders', ${i})">${i} ${dict.riderLabel}</div>`;
+            }
+        }
+
+        function buildDurationChips() {
+            const dict = uiDictionary[currentLanguage];
+            const container = document.getElementById('duration-chips-row');
+            container.innerHTML = `
+                <div class="luxury-chip active" onclick="selectParam(this, 'duration', '1h')">${dict.optStandard}</div>
+                <div class="luxury-chip" onclick="selectParam(this, 'duration', '1.5h')">${dict.optExtended}</div>
+            `;
+        }
+
         function openTourModal(tourKey) {
             selectedTourKey = tourKey;
             const tour = tourDatabase[tourKey];
             const localized = tour[currentLanguage];
             
-            chosenDay = ''; chosenTime = ''; chosenRiders = '';
+            chosenDay = ''; chosenTime = ''; chosenRiders = 0; chosenDuration = '1h';
             document.querySelectorAll('.luxury-chip').forEach(c => c.classList.remove('active'));
             
+            const durationGroup = document.getElementById('group-duration');
+            if (tour.hasExtension) {
+                buildDurationChips();
+                durationGroup.style.display = 'block';
+            } else {
+                durationGroup.style.display = 'none';
+            }
+
             const sliderContainer = document.getElementById('modal-slideshow-container');
             const sliderNav = document.getElementById('modal-slideshow-nav');
             sliderContainer.innerHTML = '';
@@ -548,7 +596,8 @@
             
             if(type === 'day') chosenDay = value;
             if(type === 'time') chosenTime = value;
-            if(type === 'riders') chosenRiders = value;
+            if(type === 'riders') chosenRiders = parseInt(value, 10);
+            if(type === 'duration') chosenDuration = value;
 
             updateActionButtonState();
         }
@@ -556,8 +605,16 @@
         function updateActionButtonState() {
             const btn = document.getElementById('btn-modal-book');
             const dict = uiDictionary[currentLanguage];
-            if (chosenDay && chosenTime && chosenRiders) {
-                btn.textContent = dict.bookBtnReady;
+            
+            if (chosenDay && chosenTime && chosenRiders > 0) {
+                const tourData = tourDatabase[selectedTourKey];
+                let basePrice = tourData.priceVal;
+                if (tourData.hasExtension && chosenDuration === '1.5h') {
+                    basePrice = tourData.extendedPriceVal;
+                }
+                const totalCost = basePrice * chosenRiders;
+                
+                btn.textContent = `${dict.bookBtnReady} (${totalCost} GEL)`;
                 btn.disabled = false;
             } else {
                 btn.textContent = dict.bookBtnDefault;
@@ -574,15 +631,26 @@
         }
 
         function redirectToMessenger(platform) {
-            const tourName = tourDatabase[selectedTourKey][currentLanguage].title;
-            const price = tourDatabase[selectedTourKey].price;
+            const tourData = tourDatabase[selectedTourKey];
+            const tourName = tourData[currentLanguage].title;
             
-            const messageText = `Gamarjoba! I would like to book a tour:\n\n` + 
-                                `🐎 Journey: ${tourName}\n` +
+            let basePrice = tourData.priceVal;
+            let timelineText = "1 Hour (Standard)";
+            if (tourData.hasExtension && chosenDuration === '1.5h') {
+                basePrice = tourData.extendedPriceVal;
+                timelineText = "1:30 Hours (Extended Journey)";
+            }
+            
+            const totalCalculated = basePrice * chosenRiders;
+            
+            const messageText = `Gamarjoba! I would like to book a horseback tour:\n\n` + 
+                                `🐎 Route: ${tourName}\n` +
+                                `⏱ Duration: ${timelineText}\n` +
                                 `📅 Date: ${chosenDay}\n` +
                                 `🕒 Time: ${chosenTime}\n` +
-                                `👥 Riders: ${chosenRiders}\n` +
-                                `💰 Estimated Rate: ${price}`;
+                                `👥 Group Size: ${chosenRiders} Person(s)\n` +
+                                `💳 Rate Breakdown: ${basePrice} GEL x ${chosenRiders} Horse(s)\n` +
+                                `💰 Final Combined Total: ${totalCalculated} GEL`;
                                 
             const encodedText = encodeURIComponent(messageText);
             let finalUrl = "";
@@ -590,7 +658,6 @@
             if (platform === 'whatsapp') {
                 finalUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
             } else if (platform === 'telegram') {
-                // Resolved format forces mobile applications to directly prompt the custom string draft inside your thread
                 finalUrl = `https://t.me/${TELEGRAM_USERNAME}?text=${encodedText}`;
             }
 
