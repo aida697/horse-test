@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kazbegi Stables Master Dashboard</title>
+    <title>Dashboard</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -49,7 +49,7 @@
             letter-spacing: -0.02em;
         }
 
-        /* --- DASHBOARD LAYOUT SYSTEM --- */
+
         .sidebar {
             width: 360px;
             background: var(--surface);
@@ -90,7 +90,7 @@
         .room-meta { display: flex; justify-content: space-between; align-items: center; }
         .room-id { font-size: 0.75rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
         
-        /* UNREAD NOTIFICATION BADGE */
+
         .room-meta-right { display: flex; align-items: center; gap: 8px; }
         .unread-dot {
             width: 8px;
@@ -103,7 +103,6 @@
         .room-time { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
         .room-preview { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 
-        /* --- DETAIL WORKSPACE --- */
         .workspace {
             flex-grow: 1;
             display: flex;
@@ -133,7 +132,7 @@
         .workspace-title { display: flex; align-items: center; gap: 12px; }
         .back-list-btn { display: none; background: var(--bg-light); border: 1px solid var(--border); cursor: pointer; color: var(--text-main); align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; }
 
-        /* DEEP ROUTED QUICK INTERACTION CHIPS */
+
         .external-route-box { display: flex; gap: 8px; }
         .action-chip-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: var(--transition-smooth); }
         .action-chip-btn.whatsapp { background: #25D366; }
@@ -150,14 +149,14 @@
             z-index: 2;
         }
 
-        /* MASTER BUBBLE COMPONENT */
+
         .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
         .msg-wrapper.user { align-self: flex-start; }
         .msg-wrapper.owner { align-self: flex-end; }
         .msg-bubble { padding: 14px 18px; border-radius: var(--radius-premium); font-size: 0.9rem; line-height: 1.5; width: 100%; font-weight: 500; position: relative; }
         
         .msg-user .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; }
-        /* Automatic highlighting formatting for incoming systemic reservation payloads */
+
         .msg-user.payload-format .msg-bubble { background: #FFFDF3; border: 1px dashed var(--accent); color: var(--primary); font-weight: 600; }
         .msg-owner .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
         
@@ -169,7 +168,7 @@
         .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
         .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
 
-        /* --- RESPONSIVE MOBILE HANDLERS --- */
+
         @media (max-width: 768px) {
             .sidebar { width: 100%; }
             .workspace { position: fixed; top: 0; left: 0; width: 100vw; height: 100%; transform: translateX(100%); transition: var(--transition-smooth); z-index: 20; }
@@ -182,8 +181,8 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>Dato's Stables</h1>
-            <p>Live Rider Inquiries Console</p>
+            <h1>Chat</h1>
+            <p>Status : Live</p>
         </div>
         <div class="room-list" id="master-rooms-container"></div>
     </div>
@@ -191,8 +190,8 @@
     <div class="workspace" id="detail-workspace">
         <div class="no-chat-selected" id="blank-slate-view">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <h3>No Session Selected</h3>
-            <p style="font-size:0.8rem;">Select an incoming line from the directory sidebar to respond</p>
+            <h3>No Session</h3>
+            <p style="font-size:0.8rem;">sel1</p>
         </div>
 
         <div class="workspace-header">
@@ -228,12 +227,12 @@
         let activeRoomId = null;
         let activeMessagesUnsubscribe = null;
 
-        // Auto Authenticate Dashboard Session Anonymous admin tunnel
+
         firebase.auth().signInAnonymously().then(() => {
             listenToActiveRooms();
         });
 
-        // --- ROOMS DIRECTORY REALTIME PIPELINE ---
+
         function listenToActiveRooms() {
             db.collection("conversations").orderBy("lastActive", "desc").onSnapshot(snapshot => {
                 const container = document.getElementById('master-rooms-container');
@@ -273,11 +272,11 @@
             });
         }
 
-        // --- CHAT CONSOLE DETAILED FEED ---
+
         function loadChatWorkspace(roomId) {
             activeRoomId = roomId;
             
-            // Instantly clear the unread indicator in Firestore when chat opens
+
             db.collection("conversations").doc(roomId).set({
                 unread: false
             }, { merge: true }).catch(err => console.error("Error clearing badge status: ", err));
@@ -327,7 +326,6 @@
                 });
         }
 
-        // --- DEEP LINK SMART ROUTER ---
         function parseActionLauncherShortcuts(text) {
             const container = document.getElementById('external-route-actions');
             
@@ -352,7 +350,7 @@
             }
         }
 
-        // --- OUTBOUND MESSAGE DISPATCH ENGINE ---
+
         function dispatchOwnerReply() {
             const input = document.getElementById('owner-reply-field');
             const txt = input.value.trim();
