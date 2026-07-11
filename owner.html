@@ -7,9 +7,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
@@ -169,18 +169,15 @@
 </head>
 <body>
 
-    <!-- MASTER SIDEBAR CHAT DIRECTORY -->
     <div class="sidebar">
         <div class="sidebar-header">
             <h1>Dato's Stables</h1>
             <p>Live Rider Inquiries Console</p>
         </div>
         <div class="room-list" id="master-rooms-container">
-            <!-- Dynamically populated room objects -->
-        </div>
+            </div>
     </div>
 
-    <!-- DETAIL CONSOLE WORKSPACE -->
     <div class="workspace" id="detail-workspace">
         <div class="no-chat-selected" id="blank-slate-view">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -194,8 +191,7 @@
                 <h4 id="active-panel-title" style="font-size:1rem; color:var(--primary);">Session</h4>
             </div>
             <div class="external-route-box" id="external-route-actions">
-                <!-- Smart Deep Route Links (WhatsApp/Telegram triggers) appear here -->
-            </div>
+                </div>
         </div>
 
         <div class="chat-stream" id="owner-stream-box"></div>
@@ -207,7 +203,6 @@
     </div>
 
     <script>
-        // Copy exact Firebase configuration parameters from user app
         const firebaseConfig = {
             apiKey: "AIzaSyBuufwbLbfu7t6peZzfuZjqHX0TCnKw_ps",
             authDomain: "horseriding-20852.firebaseapp.com",
@@ -244,6 +239,7 @@
                     const data = doc.data();
                     const roomId = doc.id;
                     const timestamp = data.lastActive ? new Date(data.lastActive.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    const previewText = data.lastMessage || 'Monitoring trail line...';
                     
                     const item = document.createElement('div');
                     item.className = `room-item ${roomId === activeRoomId ? 'active' : ''}`;
@@ -255,18 +251,9 @@
                             <span class="room-id">${roomId.toUpperCase()}</span>
                             <span class="room-time">${timestamp}</span>
                         </div>
-                        <div class="room-preview" id="preview-${roomId}">Monitoring trail line...</div>
+                        <div class="room-preview" id="preview-${roomId}">${previewText}</div>
                     `;
                     container.appendChild(item);
-
-                    // Fetch individual chat tail content to form side text previews
-                    db.collection("conversations").doc(roomId).collection("messages")
-                      .orderBy("timestamp", "desc").limit(1).get().then(msgSnap => {
-                          if(!msgSnap.empty) {
-                              const mData = msgSnap.docs[0].data();
-                              document.getElementById(`preview-${roomId}`).textContent = mData.text;
-                          }
-                      });
                 });
             });
         }
@@ -275,7 +262,6 @@
         function loadChatWorkspace(roomId) {
             activeRoomId = roomId;
             
-            // Manage targeted highlighting modifications on DOM elements
             document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
             const dynamicCard = document.getElementById(`room-card-${roomId}`);
             if(dynamicCard) dynamicCard.classList.add('active');
@@ -284,21 +270,22 @@
             document.getElementById('detail-workspace').classList.add('active');
             document.getElementById('active-panel-title').textContent = `Line: ${roomId.toUpperCase()}`;
             
-            // Clean interface before subscribing
             if(activeMessagesUnsubscribe) activeMessagesUnsubscribe();
             document.getElementById('owner-stream-box').innerHTML = '';
             document.getElementById('external-route-actions').innerHTML = '';
 
-            // Real-time conversation stream synchronization pipeline hook
             activeMessagesUnsubscribe = db.collection("conversations").doc(roomId).collection("messages")
                 .orderBy("timestamp", "asc").onSnapshot(snapshot => {
                     const stream = document.getElementById('owner-stream-box');
                     stream.innerHTML = '';
                     
+                    // Reset link container to capture the latest matching pattern card safely
+                    document.getElementById('external-route-actions').innerHTML = '';
+
                     snapshot.forEach(doc => {
                         const msg = doc.data();
                         const isOwner = msg.sender === 'owner';
-                        const isPayload = msg.text.includes("Payload:") || msg.text.includes("Contact Point:");
+                        const isPayload = msg.text.includes("🐎") || msg.text.includes("Lead Contact Point:");
                         
                         const wrapper = document.createElement('div');
                         wrapper.className = `msg-wrapper ${isOwner ? 'owner msg-owner' : 'user msg-user'} ${isPayload ? 'payload-format' : ''}`;
@@ -311,22 +298,27 @@
                         `;
                         stream.appendChild(wrapper);
 
-                        // Parse string text dynamically to build action launcher shortcuts
                         if (msg.text.includes("Lead Contact Point:")) {
                             parseActionLauncherShortcuts(msg.text);
                         }
                     });
-                    stream.scrollTop = stream.scrollHeight;
+                    
+                    // Schedule view focus adjust downward via macro-task execution
+                    setTimeout(() => {
+                        stream.scrollTop = stream.scrollHeight;
+                    }, 50);
                 });
         }
 
         // --- DEEP LINK SMART ROUTER ---
         function parseActionLauncherShortcuts(text) {
             const container = document.getElementById('external-route-actions');
-            container.innerHTML = ''; // reset container
             
             try {
-                const messengerType = text.match(/\[(.*?)\]/)[1]; 
+                const typeMatch = text.match(/\[(.*?)\]/);
+                if (!typeMatch) return;
+                
+                const messengerType = typeMatch[1]; 
                 const phoneNum = text.split(']').pop().trim();   
                 
                 if (messengerType === 'WhatsApp') {
@@ -334,12 +326,12 @@
                     container.innerHTML = `
                         <a href="https://wa.me/${cleanPhone}" target="_blank" class="action-chip-btn whatsapp">
                             <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-4.846c1.66.986 3.295 1.494 5.348 1.495 5.482 0 9.943-4.44 9.947-9.925.002-2.657-1.02-5.155-2.877-7.015s-4.343-2.88-6.999-2.88c-5.49 0-9.953 4.441-9.957 9.925a9.895 9.895 0 0 0 1.51 5.06l-.183.668-.94 3.433 3.517-.923zm13.102-7.404c-.31-.154-1.834-.905-2.119-1.008-.285-.104-.493-.154-.7.154-.207.31-.803.104-.984.154s-.362-.051-.672-.206c-1.307-.656-2.129-1.636-2.387-2.08-.259-.444-.028-.684.195-.905.2-.199.44-.515.66-.773.22-.258.293-.44.44-.734.146-.294.073-.55-.036-.757-.109-.207-.7-.154-1.285-.154z"/></svg>
-                            Open WhatsApp (${phoneNum})
+                            Open WhatsApp
                         </a>
                     `;
                 }
             } catch(e) {
-                console.log("No deep-link shortcut context match located inside text string standard layout pattern rules.");
+                console.error("Action link structural parser context failure:", e);
             }
         }
 
@@ -349,12 +341,18 @@
             const txt = input.value.trim();
             if(!txt || !activeRoomId) return;
 
-            db.collection("conversations").doc(activeRoomId).set({ lastActive: new Date() }, { merge: true });
+            // Update parent object markers securely via Firestore server hooks
+            db.collection("conversations").doc(activeRoomId).set({ 
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                lastMessage: txt 
+            }, { merge: true });
+
             db.collection("conversations").doc(activeRoomId).collection("messages").add({
                 text: txt,
                 sender: "owner",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
+            
             input.value = '';
         }
 
