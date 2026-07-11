@@ -745,11 +745,18 @@
             window.db = firebase.firestore();
 
             firebase.auth().signInAnonymously()
-                .then(() => {
-                    console.log("Anonymous login successful");
-                })
-                .catch((error) => {
-                    console.error("Anonymous login failed:", error);
+.then(() => {
+
+    console.log("Anonymous login successful");
+
+    window.db.collection("conversations")
+    .doc(chatId)
+    .set({
+        chatId: chatId,
+        status:"active",
+        unread:false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
                 });
         }
 
@@ -1154,6 +1161,8 @@
                     window.db.collection("conversations").doc(chatId).set({
                         lastActive: firebase.firestore.FieldValue.serverTimestamp(),
                         lastMessage: summary
+                        unread: true,
+                        status: "active"
                     }, { merge: true }).then(() => {
                         window.db.collection("conversations").doc(chatId).collection("messages").add({
                             text: summary,
@@ -1183,7 +1192,9 @@
             if (window.db) {
                 window.db.collection("conversations").doc(chatId).set({ 
                     lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastMessage: payloadText
+                    lastMessage: payloadText,
+                    unread: true,
+                    status: "active"
                 }, { merge: true }).then(() => {
                     window.db.collection("conversations").doc(chatId).collection("messages").add({
                         text: payloadText,
@@ -1209,10 +1220,17 @@
 
             // --- FIX 3: SYNC PARENT DOCUMENT TIMESTAMP BEFORE PUSHING TEXT MESSAGE ---
             if (window.db) {
-                window.db.collection("conversations").doc(chatId).set({
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastMessage: txt
-                }, { merge: true }).then(() => {
+               window.db.collection("conversations").doc(chatId).set({
+
+    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+
+    lastMessage: txt,
+
+    unread: true,
+
+    status: "active"
+
+}, { merge: true }).then(() => {
                     window.db.collection("conversations").doc(chatId).collection("messages").add({
                         text: txt,
                         sender: "user",
