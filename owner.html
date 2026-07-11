@@ -49,7 +49,6 @@
             letter-spacing: -0.02em;
         }
 
-
         .sidebar {
             width: 360px;
             background: var(--surface);
@@ -90,7 +89,6 @@
         .room-meta { display: flex; justify-content: space-between; align-items: center; }
         .room-id { font-size: 0.75rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
         
-
         .room-meta-right { display: flex; align-items: center; gap: 8px; }
         .unread-dot {
             width: 8px;
@@ -132,7 +130,6 @@
         .workspace-title { display: flex; align-items: center; gap: 12px; }
         .back-list-btn { display: none; background: var(--bg-light); border: 1px solid var(--border); cursor: pointer; color: var(--text-main); align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; }
 
-
         .external-route-box { display: flex; gap: 8px; }
         .action-chip-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: var(--transition-smooth); }
         .action-chip-btn.whatsapp { background: #25D366; }
@@ -149,14 +146,12 @@
             z-index: 2;
         }
 
-
         .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
         .msg-wrapper.user { align-self: flex-start; }
         .msg-wrapper.owner { align-self: flex-end; }
         .msg-bubble { padding: 14px 18px; border-radius: var(--radius-premium); font-size: 0.9rem; line-height: 1.5; width: 100%; font-weight: 500; position: relative; }
         
         .msg-user .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; }
-
         .msg-user.payload-format .msg-bubble { background: #FFFDF3; border: 1px dashed var(--accent); color: var(--primary); font-weight: 600; }
         .msg-owner .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
         
@@ -167,7 +162,6 @@
         .chat-input-field { flex-grow: 1; border: 1px solid var(--border); padding: 14px 20px; border-radius: var(--radius-pill); outline: none; font-size: 0.9rem; background: var(--bg-light); font-weight: 500; }
         .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
         .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
-
 
         @media (max-width: 768px) {
             .sidebar { width: 100%; }
@@ -191,7 +185,7 @@
         <div class="no-chat-selected" id="blank-slate-view">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             <h3>No Session</h3>
-            <p style="font-size:0.8rem;">sel1</p>
+            <p style="font-size:0.8rem;">Select a trail session line</p>
         </div>
 
         <div class="workspace-header">
@@ -226,18 +220,41 @@
 
         let activeRoomId = null;
         let activeMessagesUnsubscribe = null;
+        let isFirstLoadOfRooms = true; // Prevents triggering notifications for old data when dashboard boots up
 
+        // Prompt for notification access on initial page launch
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
 
         firebase.auth().signInAnonymously().then(() => {
             listenToActiveRooms();
         });
 
-
         function listenToActiveRooms() {
             db.collection("conversations").orderBy("lastActive", "desc").onSnapshot(snapshot => {
                 const container = document.getElementById('master-rooms-container');
-                container.innerHTML = '';
                 
+                // Real-time delta modification engine loop
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "modified" || change.type === "added") {
+                        const roomData = change.doc.data();
+                        const roomId = change.doc.id;
+
+                        // Trigger notifications ONLY if:
+                        // 1. It's not the initial page boot.
+                        // 2. The document unread indicator flag is active.
+                        // 3. You don't have this exact room open right now.
+                        if (!isFirstLoadOfRooms && roomData.unread === true && activeRoomId !== roomId) {
+                            dispatchSystemNotification(roomId, roomData.lastMessage || "New update received.");
+                        }
+                    }
+                });
+
+                // Clear the setup flag once historical layout documents have processed
+                isFirstLoadOfRooms = false;
+
+                container.innerHTML = '';
                 if (snapshot.empty) {
                     container.innerHTML = `<div style="padding:40px; text-align:center; font-size:0.8rem; color:var(--text-muted);">No active rides requested yet</div>`;
                     return;
@@ -248,8 +265,6 @@
                     const roomId = doc.id;
                     const timestamp = data.lastActive ? new Date(data.lastActive.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
                     const previewText = data.lastMessage || 'Monitoring trail line...';
-                    
-                    // Verify unread flag criteria
                     const isUnread = data.unread === true;
                     
                     const item = document.createElement('div');
@@ -272,10 +287,49 @@
             });
         }
 
+        function dispatchSystemNotification(roomId, messageText) {
+            if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+            const summary = messageText.length > 75 ? messageText.substring(0, 75) + "..." : messageText;
+
+            // Generate Native Pop-up banner
+            const toast = new Notification(`🚨 NEW ACTIVITY [${roomId.toUpperCase()}]`, {
+                body: summary,
+                icon: "https://cdn-icons-png.flaticon.com/512/6124/6124991.png"
+            });
+
+            // Dual tone high priority systemic audio chime
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                let osc1 = audioCtx.createOscillator();
+                let gain1 = audioCtx.createGain();
+                osc1.connect(gain1); gain1.connect(audioCtx.destination);
+                osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                gain1.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc1.start(); osc1.stop(audioCtx.currentTime + 0.1);
+
+                let osc2 = audioCtx.createOscillator();
+                let gain2 = audioCtx.createGain();
+                osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                gain2.gain.setValueAtTime(0.12, audioCtx.currentTime + 0.1);
+                osc2.start(audioCtx.currentTime + 0.1); osc2.stop(audioCtx.currentTime + 0.25);
+            } catch (error) {
+                console.log("Audio presentation blocked by browser execution policies.");
+            }
+
+            // Click interaction automatically opens up the target channel console workspace panel
+            toast.onclick = function(e) {
+                e.preventDefault();
+                window.focus();
+                loadChatWorkspace(roomId);
+                toast.close();
+            };
+        }
 
         function loadChatWorkspace(roomId) {
             activeRoomId = roomId;
-            
 
             db.collection("conversations").doc(roomId).set({
                 unread: false
@@ -350,7 +404,6 @@
             }
         }
 
-
         function dispatchOwnerReply() {
             const input = document.getElementById('owner-reply-field');
             const txt = input.value.trim();
@@ -358,7 +411,8 @@
 
             db.collection("conversations").doc(activeRoomId).set({ 
                 lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                lastMessage: txt 
+                lastMessage: txt,
+                unread: false // Setting this manually to false on reply
             }, { merge: true });
 
             db.collection("conversations").doc(activeRoomId).collection("messages").add({
