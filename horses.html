@@ -282,7 +282,7 @@
             <div class="owner-profile">
                 <div class="owner-avatar"></div>
                 <div>
-                    <h4 style="font-family:inherit; font-size: 0.95rem; font-weight:700; color: var(--primary);" id="chat-owner-name">Giorgi (Host)</h4>
+                    <h4 style="font-family:inherit; font-size: 0.95rem; font-weight:700; color: var(--primary);" id="chat-owner-name">Dato (Host)</h4>
                     <span class="owner-status" id="chat-live-status">● Stables Connected</span>
                 </div>
             </div>
@@ -299,7 +299,7 @@
     <div class="popup-overlay" id="contact-popup">
         <div class="popup-card">
             <h4 id="pop-title">Instant Confirmation</h4>
-            <p id="pop-desc">Where can Giorgi reach you to coordinate meeting paths?</p>
+            <p id="pop-desc">Where can Dato reach you to coordinate meeting paths?</p>
             
             <div class="messenger-tags">
                 <div class="tag-btn selected" onclick="selectMessengerTag(this, 'WhatsApp')">WhatsApp</div>
@@ -377,7 +377,7 @@
                 paramTitle: "Quick Reservation", mDay: "When", mTime: "Preferred Time", mRiders: "How many riders?",
                 dayToday: "Today", dayTomorrow: "Tomorrow", riderSingle: "1 Rider", ownerStatus: "● Stables Connected",
                 months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                popTitle: "Instant Confirmation", popDesc: "Where can Giorgi reach you to coordinate meeting paths?", popBtn: "Confirm Reservation", popSkip: "Skip, I'll chat here instead",
+                popTitle: "Instant Confirmation", popDesc: "Where can Dato reach you to coordinate meeting paths?", popBtn: "Confirm Reservation", popSkip: "Skip, I'll chat here instead",
                 lblSeen: "Seen", lblSent: "Sent"
             },
             ka: {
@@ -469,7 +469,7 @@
             document.getElementById('modal-gear-title').textContent = dict.gearTitle;
             document.getElementById('btn-modal-book').textContent = dict.bookBtn;
             document.getElementById('chat-custom-message').placeholder = dict.inputPlaceholder;
-            document.getElementById('chat-owner-name').textContent = lang === 'ka' ? "გიორგი (მასპინძელი)" : (lang === 'ru' ? "Георгий (Хозяин)" : (lang === 'ar' ? "جيورجي (المضيف)" : "Giorgi (Host)"));
+            document.getElementById('chat-owner-name').textContent = lang === 'ka' ? "გიორგი (მასპინძელი)" : (lang === 'ru' ? "Георгий (Хозяин)" : (lang === 'ar' ? "جيورجي (المضيف)" : "Dato (Host)"));
             document.getElementById('chat-live-status').textContent = dict.ownerStatus;
             
             document.getElementById('pop-title').textContent = dict.popTitle;
@@ -749,7 +749,7 @@
             }
             
             dismissContactPopup();
-            appendSystemMessage(currentLanguage === 'ka' ? "თქვენი მონაცემები შენახულია. გიორგი მალე დაგიკავშირდებათ შეხვედრის დეტალებზე!" : "Thank you! Giorgi will lock your saddle and reach out via your preference shortly.");
+            appendSystemMessage(currentLanguage === 'ka' ? "თქვენი მონაცემები შენახულია. გიორგი მალე დაგიკავშირდებათ შეხვედრის დეტალებზე!" : "Thank you! Dato will lock your saddle and reach out via your preference shortly.");
         }
 
         function dismissContactPopup() {
@@ -772,7 +772,7 @@
                 });
             } else {
                 setTimeout(() => {
-                    appendSystemMessage(currentLanguage === 'ka' ? "შეტყობინება მიღებულია! გიორგი გიპასუხებთ რამდენიმე წუთში." : "Got your notes! Giorgi is checking the trail conditions and will reply here in a brief moment.");
+                    appendSystemMessage(currentLanguage === 'ka' ? "შეტყობინება მიღებულია! გიორგი გიპასუხებთ რამდენიმე წუთში." : "Got your notes! Dato is checking the trail conditions and will reply here in a brief moment.");
                 }, 1000);
             }
         }
