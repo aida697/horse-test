@@ -43,7 +43,6 @@
             min-height: -webkit-fill-available;
         }
 
-        /* Enforce absolute scroll freezing on mobile devices when modals/popups open */
         body.scroll-locked {
             overflow: hidden !important;
             position: fixed;
@@ -66,6 +65,7 @@
         body.rtl .card-price-tag { right: auto; left: 24px; }
         body.rtl .chat-back-btn svg { transform: rotate(180deg); }
         body.rtl .msg-meta { text-align: left; justify-content: flex-start; }
+        body.rtl .slideshow-nav { left: 16px; right: auto; transform: none; flex-direction: row-reverse; }
 
         /* --- SPLASH SCREEN --- */
         #splash-screen { 
@@ -119,7 +119,24 @@
         .modal-handle { width: 40px; height: 4px; background: rgba(24, 34, 27, 0.15); border-radius: 10px; margin: 12px auto; flex-shrink: 0; }
         
         .modal-content-scroll { overflow-y: auto; padding: 0 20px 140px 20px; flex-grow: 1; width: 100%; max-width: 600px; margin: 0 auto; -webkit-overflow-scrolling: touch; }
-        .modal-hero-img { width: 100%; height: 200px; border-radius: var(--radius-premium); object-fit: cover; margin-bottom: 20px; }
+        
+        /* --- PREMIUM SLIDESHOW SYSTEM --- */
+        .slideshow-wrapper { position: relative; width: 100%; height: 240px; border-radius: var(--radius-premium); overflow: hidden; margin-bottom: 20px; background: #000; }
+        .slideshow-container { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .slideshow-container::-webkit-scrollbar { display: none; }
+        .slide-frame { min-width: 100%; width: 100%; height: 100%; scroll-snap-align: start; flex-shrink: 0; cursor: zoom-in; }
+        .slide-frame img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+        .slideshow-nav { position: absolute; bottom: 16px; right: 16px; display: flex; gap: 6px; z-index: 10; background: rgba(9,11,9,0.6); padding: 6px 10px; border-radius: var(--radius-pill); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .slide-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: var(--transition-smooth); }
+        .slide-dot.active { background: #FFFFFF; width: 14px; border-radius: 4px; }
+
+        /* --- LIGHTBOX IMAGE ZOOM SYSTEM --- */
+        .lightbox-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 4000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; }
+        .lightbox-overlay.active { opacity: 1; visibility: visible; }
+        .lightbox-img { max-width: 95%; max-height: 80vh; border-radius: 12px; object-fit: contain; transform: scale(0.9); transition: var(--transition-smooth); }
+        .lightbox-overlay.active .lightbox-img { transform: scale(1); }
+        .lightbox-close { position: absolute; top: 24px; right: 24px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
         .modal-description { font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin: 20px 0; font-weight: 400; }
         
         .gear-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
@@ -176,43 +193,12 @@
         .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
         .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        /* --- POPUP MODAL (UPDATED TO TRUE CENTER VIEW) --- */
-        .popup-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background: rgba(9, 11, 9, 0.6); 
-            backdrop-filter: blur(8px); 
-            -webkit-backdrop-filter: blur(8px); 
-            z-index: 3000; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: var(--transition-smooth); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            padding: 24px;
-        }
+        /* --- POPUP MODAL --- */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(9, 11, 9, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3000; opacity: 0; visibility: hidden; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; padding: 24px; }
         .popup-overlay.active { opacity: 1; visibility: visible; }
         
-        .popup-card { 
-            background: var(--surface); 
-            width: 100%; 
-            max-width: 400px;
-            border-radius: var(--radius-premium); 
-            padding: 32px 24px; 
-            transform: scale(0.85); 
-            opacity: 0;
-            transition: var(--transition-smooth); 
-            box-shadow: 0 30px 70px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .popup-overlay.active .popup-card { 
-            transform: scale(1); 
-            opacity: 1;
-        }
+        .popup-card { background: var(--surface); width: 100%; max-width: 400px; border-radius: var(--radius-premium); padding: 32px 24px; transform: scale(0.85); opacity: 0; transition: var(--transition-smooth); box-shadow: 0 30px 70px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .popup-overlay.active .popup-card { transform: scale(1); opacity: 1; }
         
         .popup-card h4 { font-size: 1.4rem; color: var(--primary); margin-bottom: 10px; font-weight: 700; text-align: center; }
         .popup-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; text-align: center; }
@@ -264,7 +250,13 @@
     <div class="bottom-modal" id="tour-modal">
         <div class="modal-handle"></div>
         <div class="modal-content-scroll">
-            <img id="modal-img" class="modal-hero-img" src="" alt="Tour preview">
+            
+            <!-- SWIPEABLE SLIDESHOW SYSTEM -->
+            <div class="slideshow-wrapper">
+                <div class="slideshow-container" id="modal-slideshow-container" onscroll="updateSlideshowDots()"></div>
+                <div class="slideshow-nav" id="modal-slideshow-nav"></div>
+            </div>
+
             <h2 id="modal-title" style="font-size: 1.5rem; margin-bottom: 14px; color: var(--primary);"></h2>
             <div class="metric-grid" id="modal-metric-box"></div>
             <p id="modal-desc" class="modal-description"></p>
@@ -277,6 +269,12 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
+    </div>
+
+    <!-- LIGHTBOX ZOOM PREVIEW -->
+    <div class="lightbox-overlay" id="lightbox-zoom" onclick="closeLightbox()">
+        <div class="lightbox-close">&times;</div>
+        <img class="lightbox-img" id="lightbox-target-img" src="" alt="Zoomed view">
     </div>
 
     <div id="chat-interface">
@@ -377,6 +375,7 @@
                 heroTag: "სტეფანწმინდა, საქართველო", heroTitle: "ამხედრდით კავკასიონის მწვერვალებზე", secHeader: "შერჩეული ტურები",
                 gearTitle: "რა წავიღოთ ტურზე", bookBtn: "მორგება და ჩატის გახსნა", inputPlaceholder: "ჩაწერეთ კითხვა...",
                 chatWelcome: "გამარჯობა! კეთილი იყოს თქვენი მობრძანება. მონიშნეთ თქვენთვის სასურველი დრო ან მოგვწერეთ პირდაპირ ჩატში!",
+                chatWelcome: "გამარჯობა! კეთილი იყოს თქვენი მობრძანება. მონიშნეთ თქვენთვის სასურველი დრო ან მოგვწერეთ პირდაპირ ჩატში!",
                 paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი?",
                 dayToday: "დღეს", dayTomorrow: "ხვალ", riderSingle: "1 მხედარი", ownerStatus: "● კავშირი აქტიურია",
                 months: ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"],
@@ -408,7 +407,13 @@
         const tourDatabase = {
             gergeti: { 
                 price: "70 GEL", 
-                image: "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200", 
+                images: [
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200"
+                ], 
                 en: { title: "Gergeti Trinity Tour", desc: "Ride up through deep alpine paths toward the historic Gergeti Trinity Church sitting right below Mt. Kazbek.", metrics: ["10 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Comfortable trousers", "Wind jacket"] }, 
                 ka: { title: "გერგეტის სამება", desc: "ავიდეთ ისტორიულ გერგეტის სამებამდე მყინვარწვერის კალთებზე.", metrics: ["10 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "შარვალი", "ქურთუკი"] }, 
                 ru: { title: "Гергети", desc: "Поднимитесь верхом к легендарной Троицкой церкви у подножия Казбека.", metrics: ["10 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Брюки", "Ветровка"] }, 
@@ -416,8 +421,353 @@
             },
             elias: { 
                 price: "60 GEL", 
-                image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200", 
+                images: [
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"
+                ], 
                 en: { title: "Elias Church Riding Tour", desc: "Take a peaceful horseback trail to the magnificent high vantage point of Saint Elias the Prophet Church.", metrics: ["8 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Warm layers"] }, 
                 ka: { title: "ელია წინასწარმეტყველის ეკლესია", desc: "მშვიდი საცხენოსნო ტური წმინდა ელიას ეკლესიის პანორამულ გადასახედზე.", metrics: ["8 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "თბილი ტანსაცმელი"] }, 
                 ru: { title: "Церковь Ильи", desc: "Спокойная конная прогулка к красивейшей смотровой площадке церкви Святого Илии.", metrics: ["8 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Теплая одежда"] }, 
-                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear:
+                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء رياضي", "ملابس دافئة"] } 
+            },
+            gveleti: { 
+                price: "150 GEL", 
+                images: [
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"
+                ], 
+                en: { title: "Gveleti Waterfall Expedition", desc: "A thrilling ride through rocky terrain into the dramatic Gveleti canyon to witness the powerful falls.", metrics: ["18 KM", "3.50 Hours", "1-8 Persons", "Moderate"], gear: ["Hiking boots", "Waterproof jacket", "Sunscreen"] }, 
+                ka: { title: "გველეთის ჩანჩქერი", desc: "ამაღელვებელი საცხენოსნო მარშრუტი კლდოვან კანიონში გველეთის ულამაზეს ჩანჩქერამდე.", metrics: ["18 კმ", "3.50 საათი", "1-8 კაცი", "საშუალო"], gear: ["სალაშქრო ფეხსაცმელი", "საწვიმარი", "მზის კრემი"] }, 
+                ru: { title: "Гвелетский Водопад", desc: "Увлекательная экспедиция по скалистому ущелью к мощному горному водопаду Гвелети.", metrics: ["18 КМ", "3.50 Часа", "1-8 Чел", "Средняя"], gear: ["Треккинг обувь", "Ветровка", "Солнцезащитный крем"] }, 
+                ar: { title: "رحلة شلال غفيليتي", desc: "جولة مثيرة لركوب الخيل عبر الممرات الصخرية في وادي غفيليتي الخلاب لمشاهدة الشلال الغزير.", metrics: ["١٨ كم", "٣.٥٠ ساعة", "١-٨ أشخاص", "متوسط"], gear: ["حذاء للمشي", "سترة واقية من الماء", "واقي شمس"] } 
+            }
+        };
+
+        // --- CORE APPLICATION INITIALIZATION ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.body.className = (lang === 'ar') ? 'rtl' : '';
+            
+            const dict = uiDictionary[lang];
+            document.getElementById('hero-tag').textContent = dict.heroTag;
+            document.getElementById('hero-title').textContent = dict.heroTitle;
+            document.getElementById('sec-header').textContent = dict.secHeader;
+            document.getElementById('modal-gear-title').textContent = dict.gearTitle;
+            document.getElementById('btn-modal-book').textContent = dict.bookBtn;
+            document.getElementById('chat-custom-message').placeholder = dict.inputPlaceholder;
+            document.getElementById('chat-owner-name').textContent = lang === 'ka' ? "გიორგი (მასპინძელი)" : (lang === 'ru' ? "Георгий (Хозяин)" : (lang === 'ar' ? "جيورجي (المضيف)" : "Giorgi (Host)"));
+            document.getElementById('chat-live-status').textContent = dict.ownerStatus;
+            
+            document.getElementById('pop-title').textContent = dict.popTitle;
+            document.getElementById('pop-desc').textContent = dict.popDesc;
+            document.getElementById('pop-btn').textContent = dict.popBtn;
+            document.getElementById('pop-skip').textContent = dict.popSkip;
+
+            renderTourCatalog();
+            
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            splash.style.opacity = '0';
+            splash.style.visibility = 'hidden';
+            main.style.display = 'block';
+            setTimeout(() => main.style.opacity = '1', 50);
+        }
+
+        function renderTourCatalog() {
+            const container = document.getElementById('tour-cards-container');
+            container.innerHTML = '';
+            
+            Object.keys(tourDatabase).forEach(key => {
+                const tour = tourDatabase[key];
+                const localized = tour[currentLanguage];
+                
+                const card = document.createElement('div');
+                card.className = 'premium-tour-card';
+                card.onclick = () => openTourModal(key);
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img class="card-img" src="${tour.images[0]}" alt="${localized.title}" loading="lazy">
+                        <div class="card-price-tag">${tour.price}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3>${localized.title}</h3>
+                        <div class="card-arrow">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- DYNAMIC SLIDESHOW BUILDER ---
+        function openTourModal(tourKey) {
+            selectedTourKey = tourKey;
+            const tour = tourDatabase[tourKey];
+            const localized = tour[currentLanguage];
+            
+            // Generate Slide Frames & Micro Dots
+            const sliderContainer = document.getElementById('modal-slideshow-container');
+            const sliderNav = document.getElementById('modal-slideshow-nav');
+            sliderContainer.innerHTML = '';
+            sliderNav.innerHTML = '';
+
+            tour.images.forEach((imgUrl, index) => {
+                const frame = document.createElement('div');
+                frame.className = 'slide-frame';
+                frame.onclick = () => launchLightbox(imgUrl);
+                frame.innerHTML = `<img src="${imgUrl}" alt="Tour view frame ${index + 1}">`;
+                sliderContainer.appendChild(frame);
+
+                const dot = document.createElement('div');
+                dot.className = `slide-dot ${index === 0 ? 'active' : ''}`;
+                sliderNav.appendChild(dot);
+            });
+            
+            document.getElementById('modal-title').textContent = localized.title;
+            document.getElementById('modal-desc').textContent = localized.desc;
+            
+            const metricBox = document.getElementById('modal-metric-box');
+            metricBox.innerHTML = '';
+            const icons = [
+                `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+                `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+                `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+                `<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`
+            ];
+            
+            localized.metrics.forEach((metric, idx) => {
+                metricBox.innerHTML += `<div class="metric-item">${icons[idx]} ${metric}</div>`;
+            });
+
+            const gearBox = document.getElementById('modal-gear-box');
+            gearBox.innerHTML = '';
+            localized.gear.forEach(item => {
+                gearBox.innerHTML += `
+                    <div class="gear-card">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        ${item}
+                    </div>`;
+            });
+
+            toggleScrollLock(true);
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('tour-modal').classList.add('active');
+            sliderContainer.scrollLeft = 0;
+        }
+
+        function updateSlideshowDots() {
+            const container = document.getElementById('modal-slideshow-container');
+            const dots = document.querySelectorAll('.slide-dot');
+            if(!container || dots.length === 0) return;
+            
+            const index = Math.round(container.scrollLeft / container.clientWidth);
+            dots.forEach((dot, idx) => {
+                if(idx === index) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }
+
+        // --- INSTANT LIGHTBOX ENGINE ---
+        function launchLightbox(url) {
+            const target = document.getElementById('lightbox-target-img');
+            target.src = url;
+            document.getElementById('lightbox-zoom').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-zoom').classList.remove('active');
+        }
+
+        function closeTourModal() {
+            toggleScrollLock(false);
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('tour-modal').classList.remove('active');
+        }
+
+        // --- CONCIERGE CUSTOMIZER CHAT HUB ---
+        function openChatInterface() {
+            document.getElementById('chat-interface').classList.add('active');
+            const stream = document.getElementById('chat-box-stream');
+            
+            if(stream.children.length === 0) {
+                appendSystemMessage(uiDictionary[currentLanguage].chatWelcome);
+                renderCustomizerForm();
+            }
+        }
+
+        function closeChatInterface() {
+            document.getElementById('chat-interface').classList.remove('active');
+        }
+
+        function appendSystemMessage(text) {
+            const stream = document.getElementById('chat-box-stream');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper system msg-system';
+            wrapper.innerHTML = `
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-meta status-seen">${uiDictionary[currentLanguage].lblSeen}</div>
+            `;
+            stream.appendChild(wrapper);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function appendUserMessage(text) {
+            const stream = document.getElementById('chat-box-stream');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper user msg-user';
+            wrapper.innerHTML = `
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-meta">${uiDictionary[currentLanguage].lblSent} <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            `;
+            stream.appendChild(wrapper);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function renderCustomizerForm() {
+            const dict = uiDictionary[currentLanguage];
+            const stream = document.getElementById('chat-box-stream');
+            
+            const formBox = document.createElement('div');
+            formBox.className = 'chat-form-box';
+            formBox.id = 'embedded-customizer-form';
+            
+            let dayChips = '';
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            const formatDay = (date, labelKey) => {
+                const d = date.getDate();
+                const m = dict.months[date.getMonth()];
+                return `<div class="luxury-chip calendar-bubble" onclick="selectFormParam(this, 'day', '${d} ${m}')"><span>${d}</span><span class="sub-month">${dict[labelKey] || m}</span></div>`;
+            };
+
+            dayChips += formatDay(today, 'dayToday');
+            dayChips += formatDay(tomorrow, 'dayTomorrow');
+            
+            for(let i=2; i<6; i++) {
+                let nextDate = new Date();
+                nextDate.setDate(today.getDate() + i);
+                dayChips += formatDay(nextDate, '');
+            }
+
+            formBox.innerHTML = `
+                <h4>${dict.paramTitle}</h4>
+                <div class="chat-form-group">
+                    <label>${dict.mDay}</label>
+                    <div class="chip-flex-row">${dayChips}</div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mTime}</label>
+                    <div class="chip-flex-row">
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '09:00 AM')">09:00 AM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '12:00 PM')">12:00 PM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '15:00 PM')">15:00 PM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '18:00 PM')">18:00 PM</div>
+                    </div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mRiders}</label>
+                    <div class="chip-flex-row">
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '1')">${dict.riderSingle}</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '2')">2</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '3')">3</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '4+')">4+</div>
+                    </div>
+                </div>
+            `;
+            stream.appendChild(formBox);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function selectFormParam(element, type, value) {
+            const row = element.parentElement;
+            row.querySelectorAll('.luxury-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            
+            if(type === 'day') chosenDay = value;
+            if(type === 'time') chosenTime = value;
+            if(type === 'riders') chosenRiders = value;
+
+            if(chosenDay && chosenTime && chosenRiders) {
+                const tourName = tourDatabase[selectedTourKey][currentLanguage].title;
+                const summary = `${tourName} 🐎 [${chosenDay} @ ${chosenTime}] → ${chosenRiders} Rider(s).`;
+                
+                document.getElementById('embedded-customizer-form').remove();
+                appendUserMessage(summary);
+                
+                if (window.db) {
+                    window.db.collection("conversations").doc(chatId).collection("messages").add({
+                        text: `System Booking Payload: ${summary}`,
+                        sender: "user",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('contact-popup').classList.add('active');
+                }, 800);
+            }
+        }
+
+        function selectMessengerTag(btn, messenger) {
+            document.querySelectorAll('.tag-btn').forEach(t => t.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedMessenger = messenger;
+        }
+
+        function submitContactPopup() {
+            const phoneVal = document.getElementById('popup-phone-field').value.trim();
+            if(!phoneVal) return;
+            
+            const payloadText = `Lead Contact Point: [${selectedMessenger}] ${phoneVal}`;
+            if (window.db) {
+                window.db.collection("conversations").doc(chatId).set({ lastActive: new Date() }, { merge: true });
+                window.db.collection("conversations").doc(chatId).collection("messages").add({
+                    text: payloadText,
+                    sender: "user",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            dismissContactPopup();
+            appendSystemMessage(currentLanguage === 'ka' ? "თქვენი მონაცემები შენახულია. გიორგი მალე დაგიკავშირდებათ შეხვედრის დეტალებზე!" : "Thank you! Giorgi will lock your saddle and reach out via your preference shortly.");
+        }
+
+        function dismissContactPopup() {
+            document.getElementById('contact-popup').classList.remove('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-custom-message');
+            const txt = input.value.trim();
+            if(!txt) return;
+            
+            appendUserMessage(txt);
+            input.value = '';
+
+            if (window.db) {
+                window.db.collection("conversations").doc(chatId).collection("messages").add({
+                    text: txt,
+                    sender: "user",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                setTimeout(() => {
+                    appendSystemMessage(currentLanguage === 'ka' ? "შეტყობინება მიღებულია! გიორგი გიპასუხებთ რამდენიმე წუთში." : "Got your notes! Giorgi is checking the trail conditions and will reply here in a brief moment.");
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
