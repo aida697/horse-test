@@ -2,207 +2,734 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kazbegi Stables Master Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Kazbegi Premium Horse Tours</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <style>
         :root {
-            --bg-dark: #090B09; 
-            --bg-light: #F4F6F4; 
-            --surface: #FFFFFF; 
-            --primary: #18221B;
-            --accent: #C5A880; 
-            --text-main: #1C221E; 
-            --text-muted: #737E76; 
-            --border: rgba(24, 34, 27, 0.08);
-            --radius-premium: 20px; 
-            --radius-pill: 100px;
-            --shadow-sm: 0 4px 20px rgba(24, 34, 27, 0.02);
-            --shadow-lg: 0 20px 50px rgba(9, 11, 9, 0.07);
-            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --vh: 1vh;
+            --font-serif: "Playfair Display", Georgia, serif;
+            --font-sans: "Inter", system-ui, sans-serif;
+            --color-lux-gold: #c5a880;
+            --color-lux-black: #111111;
+            --color-lux-gray: #1c1c1e;
+            --color-lux-cream: #f4f1eb;
         }
-        
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-lux-cream);
+            color: var(--color-lux-black);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        body { 
-            background-color: var(--bg-light); 
-            color: var(--text-main); 
-            height: 100vh;
-            display: flex;
+
+        body.rtl {
+            direction: rtl;
+            font-family: system-ui, sans-serif;
+        }
+
+        /* Prevent background layout bouncing when sheet modals open */
+        body.scroll-locked {
+            position: fixed;
+            width: 100%;
             overflow: hidden;
         }
 
-        h1, h2, h3, h4 { 
-            font-family: 'Syne', sans-serif; 
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
+        .serif-title {
+            font-family: var(--font-serif);
         }
 
-        /* --- DASHBOARD LAYOUT SYSTEM --- */
-        .sidebar {
-            width: 360px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
+        /* --- PRESTIGE INTRO SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background-color: var(--color-lux-black);
+            z-index: 9999;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;
+        }
+
+        .lang-select-btn {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lang-select-btn:hover {
+            border-color: var(--color-lux-gold);
+            color: var(--color-lux-gold);
+            transform: translateY(-2px);
+        }
+
+        /* --- CINEMATIC TOUR CARD CATALOG --- */
+        #main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .premium-tour-card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-tour-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(17,17,17,0.08);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background-color: #eaeaea;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-tour-card:hover .card-img {
+            transform: scale(1.06);
+        }
+
+        .card-price-tag {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(17, 17, 17, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        body.rtl .card-price-tag {
+            right: auto;
+            left: 16px;
+        }
+
+        .card-body {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body h3 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--color-lux-black);
+            letter-spacing: -0.3px;
+        }
+
+        .card-arrow {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-lux-cream);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--color-lux-black);
+            transition: all 0.4s ease;
+        }
+
+        .premium-tour-card:hover .card-arrow {
+            background-color: var(--color-lux-black);
+            color: #ffffff;
+        }
+
+        body.rtl .card-arrow svg {
+            transform: scaleX(-1);
+        }
+
+        /* --- EDITORIAL BOTTOM MODAL SHEET --- */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(17, 17, 17, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #tour-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            z-index: 101;
+            max-height: 92%;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #tour-modal.active {
+            transform: translateY(0);
+        }
+
+        /* Inline Smooth Gallery Slider */
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background-color: #111;
+        }
+
+        .slideshow-scroll-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+
+        .slideshow-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slide-frame {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            cursor: zoom-in;
+        }
+
+        .slide-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-dots-indicator {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
             z-index: 10;
         }
 
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid var(--border);
-            background: var(--primary);
-            color: white;
-        }
-        .sidebar-header h1 { font-size: 1.3rem; font-weight: 800; }
-        .sidebar-header p { color: var(--accent); font-size: 0.65rem; letter-spacing: 2px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
-
-        .room-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+        .slide-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
         }
 
-        .room-item {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .room-item:hover { background: rgba(24, 34, 27, 0.02); }
-        .room-item.active { background: rgba(197, 168, 128, 0.12); border-left: 4px solid var(--accent); }
-        
-        .room-meta { display: flex; justify-content: space-between; align-items: center; }
-        .room-id { font-size: 0.75rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
-        .room-time { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
-        .room-preview { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-
-        /* --- DETAIL WORKSPACE --- */
-        .workspace {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-light);
-            position: relative;
+        .slide-dot.active {
+            width: 18px;
+            border-radius: 100px;
+            background-color: #ffffff;
         }
 
-        .no-chat-selected {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: var(--text-muted); background: var(--bg-light); gap: 12px;
-            z-index: 1;
-        }
-        .no-chat-selected h3 { font-size: 1rem; letter-spacing: 1px; color: var(--primary); }
-
-        .workspace-header {
-            background: var(--surface);
-            padding: 18px 24px;
+        .metric-item {
+            background-color: var(--color-lux-cream);
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            z-index: 2;
-        }
-        .workspace-title { display: flex; align-items: center; gap: 12px; }
-        .back-list-btn { display: none; background: var(--bg-light); border: 1px solid var(--border); cursor: pointer; color: var(--text-main); align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; }
-
-        /* DEEP ROUTED QUICK INTERACTION CHIPS */
-        .external-route-box { display: flex; gap: 8px; }
-        .action-chip-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: var(--transition-smooth); }
-        .action-chip-btn.whatsapp { background: #25D366; }
-        .action-chip-btn:active { transform: scale(0.95); }
-
-        .chat-stream { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            padding: 24px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 16px; 
-            -webkit-overflow-scrolling: touch;
-            z-index: 2;
+            gap: 8px;
         }
 
-        /* MASTER BUBBLE COMPONENT */
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
-        .msg-wrapper.user { align-self: flex-start; }
-        .msg-wrapper.owner { align-self: flex-end; }
-        .msg-bubble { padding: 14px 18px; border-radius: var(--radius-premium); font-size: 0.9rem; line-height: 1.5; width: 100%; font-weight: 500; position: relative; }
-        
-        .msg-user .msg-bubble { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-top-left-radius: 4px; }
-        /* Automatic highlighting formatting for incoming systemic reservation payloads */
-        .msg-user.payload-format .msg-bubble { background: #FFFDF3; border: 1px dashed var(--accent); color: var(--primary); font-weight: 600; }
-        .msg-owner .msg-bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
-        
-        .msg-meta { display: flex; align-items: center; gap: 4px; font-size: 0.6rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
-        .msg-owner .msg-meta { justify-content: flex-end; }
+        .metric-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
 
-        .chat-input-bar { background: var(--surface); padding: 16px 24px 28px 24px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border); z-index: 2; }
-        .chat-input-field { flex-grow: 1; border: 1px solid var(--border); padding: 14px 20px; border-radius: var(--radius-pill); outline: none; font-size: 0.9rem; background: var(--bg-light); font-weight: 500; }
-        .chat-input-field:focus { border-color: var(--accent); background: var(--surface); }
-        .send-chat-btn { background: var(--primary); color: white; border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+        .gear-card {
+            background: #ffffff;
+            border: 1px solid #eef0eb;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        /* --- RESPONSIVE MOBILE HANDLERS --- */
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; }
-            .workspace { position: fixed; top: 0; left: 0; width: 100vw; height: 100%; transform: translateX(100%); transition: var(--transition-smooth); z-index: 20; }
-            .workspace.active { transform: translateX(0); }
-            .back-list-btn { display: flex; }
+        .gear-card svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--color-lux-gold);
+            fill: none;
+            stroke-width: 3;
+        }
+
+        /* --- CONCIERGE CHAT INTERFACE --- */
+        #chat-interface {
+            position: fixed;
+            inset: 0;
+            background-color: var(--color-lux-cream);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.rtl #chat-interface {
+            transform: translateX(-100%);
+        }
+
+        #chat-interface.active {
+            transform: translateX(0);
+        }
+
+        .chat-box-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .msg-wrapper.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg-wrapper.system {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .msg-bubble {
+            padding: 14px 18px;
+            border-radius: 22px;
+            font-size: 0.98rem;
+            line-height: 1.45;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .msg-wrapper.user .msg-bubble {
+            background-color: var(--color-lux-black);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+        body.rtl .msg-wrapper.user .msg-bubble {
+            border-bottom-right-radius: 22px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-wrapper.system .msg-bubble {
+            background-color: #ffffff;
+            color: var(--color-lux-black);
+            border-bottom-left-radius: 4px;
+            border: 1px solid #eef0eb;
+        }
+        body.rtl .msg-wrapper.system .msg-bubble {
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-meta {
+            font-size: 0.72rem;
+            color: #8e8e93;
+            margin-top: 4px;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .msg-meta svg {
+            width: 10px;
+            height: 10px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .status-seen {
+            color: var(--color-lux-gold);
+            font-weight: 500;
+        }
+
+        /* Interactive Dynamic Customizer Form Inside Chat */
+        .chat-form-box {
+            background-color: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #eef0eb;
+            padding: 20px;
+            width: 100%;
+            max-width: 340px;
+            align-self: flex-start;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-form-box h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .chat-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-form-group label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8e8e93;
+            font-weight: 600;
+        }
+
+        .chip-flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .luxury-chip {
+            background-color: var(--color-lux-cream);
+            padding: 8px 14px;
+            border-radius: 100px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid transparent;
+        }
+
+        .luxury-chip:hover {
+            background-color: #eaeaea;
+        }
+
+        .luxury-chip.active {
+            background-color: var(--color-lux-black);
+            color: #ffffff;
+            border-color: var(--color-lux-black);
+        }
+
+        .calendar-bubble {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            min-width: 55px;
+            padding: 8px 6px;
+        }
+
+        .calendar-bubble span {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .calendar-bubble .sub-month {
+            font-size: 0.68rem;
+            font-weight: 500;
+            margin-top: 2px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        /* --- CONTACT CAPTURE INTERSTITIAL POPUP --- */
+        #contact-popup {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 300;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #contact-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-card {
+            background-color: #ffffff;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 400px;
+            padding: 32px 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #contact-popup.active .popup-card {
+            transform: scale(1);
+        }
+
+        .tag-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 14px;
+            background-color: var(--color-lux-cream);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tag-btn.selected {
+            border-color: var(--color-lux-black);
+            background-color: var(--color-lux-black);
+            color: #ffffff;
+        }
+
+        /* --- ZOOM LIGHTBOX --- */
+        #lightbox-zoom {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(11, 11, 11, 0.95);
+            z-index: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        #lightbox-zoom.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #lightbox-target-img {
+            max-width: 95%;
+            max-height: 85%;
+            object-fit: contain;
+            border-radius: 8px;
         }
     </style>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h1>Dato's Stables</h1>
-            <p>Live Rider Inquiries Console</p>
+    <div id="splash-screen">
+        <div class="text-center mb-12 px-6">
+            <h1 class="serif-title text-4xl md:text-5xl text-[#f4f1eb] tracking-wide mb-3">KAZBEGI</h1>
+            <p class="text-xs uppercase tracking-[0.25em] text-[#c5a880] font-semibold">Premium Horse Riding Experiences</p>
         </div>
-        <div class="room-list" id="master-rooms-container">
-            </div>
+        
+        <div class="flex flex-col gap-3 w-full max-w-[280px] px-4">
+            <button onclick="setLanguage('en')" class="lang-select-btn text-white py-3.5 px-6 rounded-xl text-[0.95rem] font-medium flex justify-between items-center">
+                <span>English</span> <span class="text-xs opacity-40 font-light">Select</span>
+            </button>
+            <button onclick="setLanguage('ka')" class="lang-select-btn text-white py-3.5 px-6 rounded-xl text-[0.95rem] font-medium flex justify-between items-center">
+                <span>ქართული</span> <span class="text-xs opacity-40 font-light">არჩევა</span>
+            </button>
+            <button onclick="setLanguage('ru')" class="lang-select-btn text-white py-3.5 px-6 rounded-xl text-[0.95rem] font-medium flex justify-between items-center">
+                <span>Русский</span> <span class="text-xs opacity-40 font-light">Выбрать</span>
+            </button>
+            <button onclick="setLanguage('ar')" class="lang-select-btn text-white py-3.5 px-6 rounded-xl text-[0.95rem] font-medium flex justify-between items-center">
+                <span>العربية</span> <span class="text-xs opacity-40 font-light">اختر</span>
+            </button>
+        </div>
     </div>
 
-    <div class="workspace" id="detail-workspace">
-        <div class="no-chat-selected" id="blank-slate-view">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <h3>No Session Selected</h3>
-            <p style="font-size:0.8rem;">Select an incoming line from the directory sidebar to respond</p>
-        </div>
 
-        <div class="workspace-header">
-            <div class="workspace-title">
-                <button class="back-list-btn" onclick="exitWorkspaceDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                <h4 id="active-panel-title" style="font-size:1rem; color:var(--primary);">Session</h4>
-            </div>
-            <div class="external-route-box" id="external-route-actions">
+    <div id="main-content">
+        <header class="relative px-6 pt-16 pb-10 max-w-5xl mx-auto flex flex-col gap-2">
+            <span id="hero-tag" class="text-xs font-bold tracking-[0.2em] text-[#c5a880] uppercase">Stepantsminda, Georgia</span>
+            <h2 id="hero-title" class="serif-title text-4xl md:text-6xl font-bold tracking-tight text-[#111111] leading-[1.1]">Ride into the Caucasus Peaks</h2>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-6 pb-24">
+            <h3 id="sec-header" class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6">Selected Journeys</h3>
+            
+            <div id="tour-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 </div>
+        </main>
+    </div>
+
+
+    <div id="modal-overlay" onclick="closeTourModal()"></div>
+    
+    <div id="tour-modal" role="dialog" aria-modal="true">
+        <div class="w-full flex justify-center py-3.5 cursor-pointer" onclick="closeTourModal()">
+            <div class="w-12 h-1 rounded-full bg-neutral-200"></div>
         </div>
 
-        <div class="chat-stream" id="owner-stream-box"></div>
+        <div class="flex-1 overflow-y-auto pb-10">
+            <div class="slideshow-wrapper">
+                <div id="modal-slideshow-container" class="slideshow-scroll-container" onscroll="updateSlideshowDots()">
+                    </div>
+                <div id="modal-slideshow-nav" class="slide-dots-indicator"></div>
+            </div>
 
-        <div class="chat-input-bar">
-            <input type="text" class="chat-input-field" id="owner-reply-field" placeholder="Type reply to rider..." onkeydown="if(event.key === 'Enter') dispatchOwnerReply()">
-            <button class="send-chat-btn" onclick="dispatchOwnerReply()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            <div class="px-6 pt-6 flex flex-col gap-4">
+                <h2 id="modal-title" class="serif-title text-2xl md:text-3xl font-bold text-[#111111]"></h2>
+                <p id="modal-desc" class="text-neutral-600 text-[1rem] leading-relaxed font-normal"></p>
+                
+                <div id="modal-metric-box" class="grid grid-cols-2 gap-3 mt-2">
+                    </div>
+
+                <hr class="border-neutral-100 my-3">
+
+                <div class="flex flex-col gap-3">
+                    <h4 id="modal-gear-title" class="text-xs font-bold uppercase tracking-wider text-neutral-400">What to Bring Along</h4>
+                    <div id="modal-gear-box" class="flex flex-col gap-2">
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-neutral-100 bg-white safe-bottom">
+            <button id="btn-modal-book" onclick="openChatInterface()" class="w-full bg-[#111111] text-white py-4 px-6 rounded-2xl text-[0.98rem] font-semibold transition-transform active:scale-[0.98] shadow-lg shadow-black/5">
+                Customize & Open Chat Line
+            </button>
         </div>
     </div>
+
+
+    <div id="chat-interface">
+        <header class="bg-white border-b border-neutral-100 px-4 py-3.5 flex justify-between items-center shrink-0">
+            <button onclick="closeChatInterface()" class="p-2 -ml-2 text-neutral-800 active:opacity-50">
+                <svg class="w-6 height-6 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            
+            <div class="text-center flex flex-col items-center">
+                <h3 id="chat-owner-name" class="font-semibold text-[0.98rem] text-neutral-900">Dato (Host)</h3>
+                <span id="chat-live-status" class="text-[0.68rem] text-emerald-600 font-medium tracking-wide">● Stables Connected</span>
+            </div>
+            
+            <div class="w-10"></div> </header>
+
+        <div id="chat-box-stream" class="chat-box-stream">
+            </div>
+
+        <div class="p-4 bg-white border-t border-neutral-100 flex gap-2 items-center safe-bottom">
+            <input type="text" id="chat-custom-message" placeholder="Type custom query..." class="flex-1 bg-neutral-50 border border-neutral-200 rounded-2xl px-4 py-3.5 text-[0.95rem] focus:outline-none focus:border-neutral-400 transition-colors" onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()" class="bg-[#111111] text-white p-3.5 rounded-2xl transition-transform active:scale-95 shrink-0">
+                <svg class="w-5 h-5 transform rotate-90 rtl:-rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+
+    <div id="contact-popup" role="dialog" aria-modal="true">
+        <div class="popup-card">
+            <h3 id="pop-title" class="serif-title text-xl font-bold text-neutral-900 mb-2">Instant Confirmation</h3>
+            <p id="pop-desc" class="text-sm text-neutral-500 leading-relaxed mb-6">Where can Dato reach you to coordinate meeting paths?</p>
+            
+            <div class="flex gap-2 mb-4">
+                <div class="tag-btn selected" onclick="selectMessengerTag(this, 'WhatsApp')">WhatsApp</div>
+                <div class="tag-btn" onclick="selectMessengerTag(this, 'Telegram')">Telegram</div>
+                <div class="tag-btn" onclick="selectMessengerTag(this, 'Phone Call')">Phone Call</div>
+            </div>
+
+            <input type="tel" id="popup-phone-field" placeholder="+995 599 123 456" class="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-[1rem] mb-4 focus:outline-none focus:border-neutral-900 transition-colors">
+
+            <div class="flex flex-col gap-2">
+                <button id="pop-btn" onclick="submitContactPopup()" class="w-full bg-[#111111] text-white py-3.5 rounded-xl text-sm font-semibold transition-colors active:bg-neutral-800">Confirm Reservation</button>
+                <button id="pop-skip" onclick="dismissContactPopup()" class="w-full bg-transparent text-neutral-400 py-2.5 text-xs font-medium transition-colors hover:text-neutral-600">Skip, I'll chat here instead</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="lightbox-zoom" onclick="closeLightbox()" role="dialog" aria-label="Lightbox view">
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white text-sm tracking-widest uppercase focus:outline-none">Close ×</button>
+        <img id="lightbox-target-img" src="" alt="Expanded Viewframe">
+    </div>
+
 
     <script>
+        let scrollPosition = 0;
+        const setVhMetric = () => {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        window.addEventListener('resize', setVhMetric);
+        window.addEventListener('orientationchange', setVhMetric);
+        setVhMetric();
+
+        function toggleScrollLock(isLocked) {
+            if (isLocked) {
+                scrollPosition = window.pageYOffset;
+                document.body.classList.add('scroll-locked');
+                document.body.style.top = `-${scrollPosition}px`;
+            } else {
+                document.body.classList.remove('scroll-locked');
+                document.body.style.top = '';
+                window.scrollTo(0, scrollPosition);
+            }
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyBuufwbLbfu7t6peZzfuZjqHX0TCnKw_ps",
             authDomain: "horseriding-20852.firebaseapp.com",
@@ -213,146 +740,491 @@
             measurementId: "G-63W9DSQ1Q6"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            window.db = firebase.firestore();
 
-        let activeRoomId = null;
-        let activeMessagesUnsubscribe = null;
-
-        firebase.auth().signInAnonymously().then(() => {
-            listenToActiveRooms();
-        });
-
-        // --- ROOMS DIRECTORY REALTIME PIPELINE ---
-        function listenToActiveRooms() {
-            db.collection("conversations").orderBy("lastActive", "desc").onSnapshot(snapshot => {
-                const container = document.getElementById('master-rooms-container');
-                container.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    container.innerHTML = `<div style="padding:40px; text-align:center; font-size:0.8rem; color:var(--text-muted);">No active rides requested yet</div>`;
-                    return;
-                }
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const roomId = doc.id;
-                    const timestamp = data.lastActive ? new Date(data.lastActive.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    const previewText = data.lastMessage || 'Monitoring trail line...';
-                    
-                    const item = document.createElement('div');
-                    item.className = `room-item ${roomId === activeRoomId ? 'active' : ''}`;
-                    item.setAttribute('id', `room-card-${roomId}`);
-                    item.onclick = () => loadChatWorkspace(roomId);
-                    
-                    item.innerHTML = `
-                        <div class="room-meta">
-                            <span class="room-id">${roomId.toUpperCase()}</span>
-                            <span class="room-time">${timestamp}</span>
-                        </div>
-                        <div class="room-preview" id="preview-${roomId}">${previewText}</div>
-                    `;
-                    container.appendChild(item);
+            firebase.auth().signInAnonymously()
+                .then(() => {
+                    console.log("Anonymous login successful");
+                })
+                .catch((error) => {
+                    console.error("Anonymous login failed:", error);
                 });
+        }
+
+        // --- FIX 1: PERSISTENT CHAT SESSION ID ---
+        let chatId = localStorage.getItem('kazbegi_session_room');
+        if (!chatId) {
+            chatId = 'room_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+            localStorage.setItem('kazbegi_session_room', chatId);
+        }
+
+        let currentLanguage = 'en';
+        let selectedTourKey = '';
+        let chosenDay = '', chosenTime = '', chosenRiders = '';
+        let selectedMessenger = 'WhatsApp';
+        let chatListenerUnsubscribe = null; // To prevent memory leaks/duplicate listeners
+
+        const uiDictionary = {
+            en: {
+                heroTag: "Stepantsminda, Georgia", heroTitle: "Ride into the Caucasus Peaks", secHeader: "Selected Journeys",
+                gearTitle: "What to Bring Along", bookBtn: "Customize & Open Chat Line", inputPlaceholder: "Type custom query...",
+                chatWelcome: "Gamarjoba! Welcome to our stable's concierge line. Pick when you want to ride below to book instantly, or send a custom text!",
+                paramTitle: "Quick Reservation", mDay: "When", mTime: "Preferred Time", mRiders: "How many riders?",
+                dayToday: "Today", dayTomorrow: "Tomorrow", riderSingle: "1 Rider", ownerStatus: "● Stables Connected",
+                months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                popTitle: "Instant Confirmation", popDesc: "Where can Dato reach you to coordinate meeting paths?", popBtn: "Confirm Reservation", popSkip: "Skip, I'll chat here instead",
+                lblSeen: "Seen", lblSent: "Sent"
+            },
+            ka: {
+                heroTag: "სტეფანწმინდა, საქართველო", heroTitle: "ამხედრდით კავკასიონის მწვერვალებზე", secHeader: "შერჩეული ტურები",
+                gearTitle: "რა წავიღოთ ტურზე", bookBtn: "მორგება და ჩატის გახსნა", inputPlaceholder: "ჩაწერეთ კითხვა...",
+                chatWelcome: "გამარჯობა! კეთილი იყოს თქვენი მობრძანება. მონიშნეთ თქვენთვის სასურველი დრო ან მოგვწერეთ პირდაპირ ჩატში!",
+                paramTitle: "სწრაფი ჯავშანი", mDay: "როდის", mTime: "სასურველი დრო", mRiders: "რამდენი მხედარი?",
+                dayToday: "დღეს", dayTomorrow: "ხვალ", riderSingle: "1 მხედარი", ownerStatus: "● კავშირი აქტიურია",
+                months: ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"],
+                popTitle: "სწრაფი დადასტურება", popDesc: "რომელ მესენჯერზე დაგიკავშირდეთ შეხვედრის ადგილის მოსაწვერად?", popBtn: "ჯავშნის დადასტურება", popSkip: "გამოტოვება, აქ მოწერა მირჩევნია",
+                lblSeen: "ნანახია", lblSent: "გაგზავნილია"
+            },
+            ru: {
+                heroTag: "Степанцминда, Грузия", heroTitle: "Прогулки верхом по вершинам Кавказа", secHeader: "Популярные Маршруты",
+                gearTitle: "Что взять с собой", bookBtn: "Настроить и Открыть Чат", inputPlaceholder: "Напишите ваш вопрос...",
+                chatWelcome: "Гамарджоба! Рады приветствовать вас. Выберите желаемое время ниже для быстрой брони или напишите нам напрямую!",
+                paramTitle: "Быстрое Бронирование", mDay: "Когда", mTime: "Удобное время", mRiders: "Сколько человек?",
+                dayToday: "Сегодня", dayTomorrow: "Завтра", riderSingle: "1 Всадник", ownerStatus: "● На связи конюшня",
+                months: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                popTitle: "Мгновенное Подтверждение", popDesc: "Где Георги может связаться с вами для координации места встречи?", popBtn: "Подтвердить Бронирование", popSkip: "Пропустить, напишу тут",
+                lblSeen: "Просмотрено", lblSent: "Отправлено"
+            },
+            ar: {
+                heroTag: "ستيبلانتسميندا، جورجيا", heroTitle: "اركبو الخيل في قمم القوقاز", secHeader: "الرحلات المختارة",
+                gearTitle: "ماذا تجلب معك", bookBtn: "تخصيص وفتح محادثة مباشرة", inputPlaceholder: "اكتب استفسارك هنا...",
+                chatWelcome: "غيمارجوبا! مرحبًا بك في بوابة الحجز المباشر. حدد موعد رحلتك أدناه للتأكيد الفوري، أو راسلنا!",
+                paramTitle: "حجز سريع", mDay: "متى", mTime: "الوقت المفضل", mRiders: "عدد الأشخاص؟",
+                dayToday: "اليوم", dayTomorrow: "غداً", riderSingle: "راِكب واحد", ownerStatus: "● مستقر الخيل متصل",
+                months: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+                popTitle: "تأكيد فوري", popDesc: "أين يمكن لـ جيورجي التواصل معك لتنسيق مسار اللقاء؟", popBtn: "تأكيد الحجز الآن", popSkip: "تخطي، سأتحدث هنا فقط",
+                lblSeen: "شوهد", lblSent: "أُرسل"
+            }
+        };
+
+        const tourDatabase = {
+            gergeti: { 
+                price: "70 GEL", 
+                images: [
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200"
+                ], 
+                en: { title: "Gergeti Trinity Tour", desc: "Ride up through deep alpine paths toward the historic Gergeti Trinity Church sitting right below Mt. Kazbek.", metrics: ["10 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Comfortable trousers", "Wind jacket"] }, 
+                ka: { title: "გერგეტის სამება", desc: "ავიდეთ ისტორიულ გერგეტის სამებამდე მყინვარწვერის კალთებზე.", metrics: ["10 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "შარვალი", "ქურთუკი"] }, 
+                ru: { title: "Гергети", desc: "Поднимитесь верхом к легендарной Троицкой церкви у подножия Казбека.", metrics: ["10 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Брюки", "Ветровка"] }, 
+                ar: { title: "جولة كنيسة جيرجيتي", desc: "اصعد على متن الخيل عبر الممرات الجبلية العميقة نحو كنيسة جيرجيتي التاريخية.", metrics: ["١٠ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء رياضى", "بنطال مريح", "سترة مقاومة للرياح"] }
+            },
+            elias: { 
+                price: "60 GEL", 
+                images: [
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"
+                ], 
+                en: { title: "Elias Church Riding Tour", desc: "Take a peaceful horseback trail to the magnificent high vantage point of Saint Elias the Prophet Church.", metrics: ["8 KM", "1.30 Hours", "1-15 Persons", "Easy"], gear: ["Sport shoes", "Warm layers"] }, 
+                ka: { title: "ელია წინასწარმეტყველის ეკლესია", desc: "მშვიდი საცხენოსნო ტური წმინდა ელიას ეკლესიის პანორამულ გადასახედზე.", metrics: ["8 კმ", "1.30 საათი", "1-15 კაცი", "მარტივი"], gear: ["ფეხსაცმელი", "თბილი ტანსაცმელი"] }, 
+                ru: { title: "Церковь Ильи", desc: "Спокойная конная прогулка к красивейшей смотворовой площадке церкви Святого Илии.", metrics: ["8 КМ", "1.30 Часа", "1-15 Чел", "Легкая"], gear: ["Обувь", "Теплая одежда"] }, 
+                ar: { title: "جولة كنيسة إلياس", desc: "استمتع بركوب الخيل الهادئ والآمن إلى مطل كنيسة القديس إلياس الخلاب.", metrics: ["٨ كم", "١.٣٠ ساعة", "١-١٥ شخص", "سهل"], gear: ["حذاء رياضي", "ملابس دافئة"] } 
+            },
+            gveleti: { 
+                price: "150 GEL", 
+                images: [
+                    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1553284965-83fd3e82fa52?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=1200",
+                    "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200"
+                ], 
+                en: { title: "Gveleti Waterfall Expedition", desc: "A thrilling ride through rocky terrain into the dramatic Gveleti canyon to witness the powerful falls.", metrics: ["18 KM", "3.50 Hours", "1-8 Persons", "Moderate"], gear: ["Hiking boots", "Waterproof jacket", "Sunscreen"] }, 
+                ka: { title: "გველეთის ჩანჩქერი", desc: "ამაღელვებელი საცხენოსნო მარშრუტი კლდოვან კანიონში გველეთის ულამაზეს ჩანჩქერამდე.", metrics: ["18 კმ", "3.50 საათი", "1-8 კაცი", "საშუალო"], gear: ["სალაშქრო ფეხსაცმელი", "საწვიმარი", "მზის კრემი"] }, 
+                ru: { title: "Гвелетский Водопад", desc: "Увлекательная экспедиция по скалистому ущелью к мощному горному водопаду Гвелети.", metrics: ["18 КМ", "3.50 Часа", "1-8 Чел", "Средняя"], gear: ["Треккинг обувь", "Ветровка", "Солнцезащитный крем"] }, 
+                ar: { title: "رحلة شلال غفيليتي", desc: "جولة مثيرة لركوب الخيل عبر الممرات الصخرية في وادي غفيليتي الخلاب لمشاهدة الشلال الغزير.", metrics: ["١٨ كم", "٣.٥٠ ساعة", "١-٨ أشخاص", "متوسط"], gear: ["حذاء للمشي", "سترة واقية من الماء", "واقي شمس"] } 
+            }
+        };
+
+        // --- CORE APPLICATION INITIALIZATION ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.body.className = (lang === 'ar') ? 'rtl' : '';
+            
+            const dict = uiDictionary[lang];
+            document.getElementById('hero-tag').textContent = dict.heroTag;
+            document.getElementById('hero-title').textContent = dict.heroTitle;
+            document.getElementById('sec-header').textContent = dict.secHeader;
+            document.getElementById('modal-gear-title').textContent = dict.gearTitle;
+            document.getElementById('btn-modal-book').textContent = dict.bookBtn;
+            document.getElementById('chat-custom-message').placeholder = dict.inputPlaceholder;
+            document.getElementById('chat-owner-name').textContent = lang === 'ka' ? "გიორგი (მასპინძელი)" : (lang === 'ru' ? "Георгий (Хозяин)" : (lang === 'ar' ? "جيورجي (المضيف)" : "Dato (Host)"));
+            document.getElementById('chat-live-status').textContent = dict.ownerStatus;
+            
+            document.getElementById('pop-title').textContent = dict.popTitle;
+            document.getElementById('pop-desc').textContent = dict.popDesc;
+            document.getElementById('pop-btn').textContent = dict.popBtn;
+            document.getElementById('pop-skip').textContent = dict.popSkip;
+
+            renderTourCatalog();
+            
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-content');
+            splash.style.opacity = '0';
+            splash.style.visibility = 'hidden';
+            main.style.display = 'block';
+            setTimeout(() => main.style.opacity = '1', 50);
+        }
+
+        function renderTourCatalog() {
+            const container = document.getElementById('tour-cards-container');
+            container.innerHTML = '';
+            
+            Object.keys(tourDatabase).forEach(key => {
+                const tour = tourDatabase[key];
+                const localized = tour[currentLanguage];
+                
+                const card = document.createElement('div');
+                card.className = 'premium-tour-card';
+                card.onclick = () => openTourModal(key);
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img class="card-img" src="${tour.images[0]}" alt="${localized.title}" loading="lazy">
+                        <div class="card-price-tag">${tour.price}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3>${localized.title}</h3>
+                        <div class="card-arrow">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
 
-        // --- CHAT CONSOLE DETAILED FEED ---
-        function loadChatWorkspace(roomId) {
-            activeRoomId = roomId;
+        function openTourModal(tourKey) {
+            selectedTourKey = tourKey;
+            const tour = tourDatabase[tourKey];
+            const localized = tour[currentLanguage];
             
-            document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
-            const dynamicCard = document.getElementById(`room-card-${roomId}`);
-            if(dynamicCard) dynamicCard.classList.add('active');
+            const sliderContainer = document.getElementById('modal-slideshow-container');
+            const sliderNav = document.getElementById('modal-slideshow-nav');
+            sliderContainer.innerHTML = '';
+            sliderNav.innerHTML = '';
 
-            document.getElementById('blank-slate-view').style.display = 'none';
-            document.getElementById('detail-workspace').classList.add('active');
-            document.getElementById('active-panel-title').textContent = `Line: ${roomId.toUpperCase()}`;
+            tour.images.forEach((imgUrl, index) => {
+                const frame = document.createElement('div');
+                frame.className = 'slide-frame';
+                frame.onclick = () => launchLightbox(imgUrl);
+                frame.innerHTML = `<img src="${imgUrl}" alt="Tour view frame ${index + 1}">`;
+                sliderContainer.appendChild(frame);
+
+                const dot = document.createElement('div');
+                dot.className = `slide-dot ${index === 0 ? 'active' : ''}`;
+                sliderNav.appendChild(dot);
+            });
             
-            if(activeMessagesUnsubscribe) activeMessagesUnsubscribe();
-            document.getElementById('owner-stream-box').innerHTML = '';
-            document.getElementById('external-route-actions').innerHTML = '';
+            document.getElementById('modal-title').textContent = localized.title;
+            document.getElementById('modal-desc').textContent = localized.desc;
+            
+            const metricBox = document.getElementById('modal-metric-box');
+            metricBox.innerHTML = '';
+            const icons = [
+                `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+                `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+                `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+                `<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`
+            ];
+            
+            localized.metrics.forEach((metric, idx) => {
+                metricBox.innerHTML += `<div class="metric-item">${icons[idx]} ${metric}</div>`;
+            });
 
-            activeMessagesUnsubscribe = db.collection("conversations").doc(roomId).collection("messages")
-                .orderBy("timestamp", "asc").onSnapshot(snapshot => {
-                    const stream = document.getElementById('owner-stream-box');
-                    stream.innerHTML = '';
-                    document.getElementById('external-route-actions').innerHTML = '';
+            const gearBox = document.getElementById('modal-gear-box');
+            gearBox.innerHTML = '';
+            localized.gear.forEach(item => {
+                gearBox.innerHTML += `
+                    <div class="gear-card">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        ${item}
+                    </div>`;
+            });
 
+            toggleScrollLock(true);
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('tour-modal').classList.add('active');
+            sliderContainer.scrollLeft = 0;
+        }
+
+        function updateSlideshowDots() {
+            const container = document.getElementById('modal-slideshow-container');
+            const dots = document.querySelectorAll('.slide-dot');
+            if(!container || dots.length === 0) return;
+            
+            const index = Math.round(container.scrollLeft / container.clientWidth);
+            dots.forEach((dot, idx) => {
+                if(idx === index) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }
+
+        function launchLightbox(url) {
+            const target = document.getElementById('lightbox-target-img');
+            target.src = url;
+            document.getElementById('lightbox-zoom').classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-zoom').classList.remove('active');
+        }
+
+        function closeTourModal() {
+            toggleScrollLock(false);
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('tour-modal').classList.remove('active');
+        }
+
+        // --- FIX 2 & FIX 4: REAL-TIME SYNC ENGINE WITH FIRESTORE HISTORICAL RECOVERY ---
+        function loadChatHistory() {
+            if (!window.db) return;
+
+            // Instantly ensure the root room index exists so the owner metrics monitor captures it
+            window.db.collection("conversations").doc(chatId).set({
+                chatId: chatId,
+                status: "active"
+            }, { merge: true });
+
+            // Avoid layout socket stack redundancy by breaking old open channels
+            if (chatListenerUnsubscribe) chatListenerUnsubscribe();
+
+            chatListenerUnsubscribe = window.db.collection("conversations")
+                .doc(chatId)
+                .collection("messages")
+                .orderBy("timestamp", "asc")
+                .onSnapshot(snapshot => {
+                    const stream = document.getElementById('chat-box-stream');
+                    stream.innerHTML = "";
+
+                    // If zero records are tracked, show initialization guides
+                    if (snapshot.empty) {
+                        appendSystemMessage(uiDictionary[currentLanguage].chatWelcome);
+                        renderCustomizerForm();
+                        return;
+                    }
+
+                    // Loop timeline snapshot entries natively
                     snapshot.forEach(doc => {
                         const msg = doc.data();
-                        const isOwner = msg.sender === 'owner';
-                        const isPayload = msg.text.includes("Payload:") || msg.text.includes("Contact Point:");
-                        
-                        const wrapper = document.createElement('div');
-                        // Fixed exact CSS class assignment structure to maintain your bubble stylings perfectly!
-                        wrapper.className = `msg-wrapper ${isOwner ? 'owner msg-owner' : 'user msg-user'} ${isPayload ? 'payload-format' : ''}`;
-                        
-                        const timeString = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                        
-                        wrapper.innerHTML = `
-                            <div class="msg-bubble">${msg.text}</div>
-                            <div class="msg-meta">${timeString}</div>
-                        `;
-                        stream.appendChild(wrapper);
-
-                        if (msg.text.includes("Lead Contact Point:")) {
-                            parseActionLauncherShortcuts(msg.text);
+                        if (msg.sender === "owner" || msg.sender === "system") {
+                            appendSystemMessage(msg.text);
+                        } else {
+                            appendUserMessage(msg.text);
                         }
                     });
-                    
-                    setTimeout(() => {
-                        stream.scrollTop = stream.scrollHeight;
-                    }, 50);
+
+                    // Force window viewport focus downward
+                    stream.scrollTop = stream.scrollHeight;
+                }, error => {
+                    console.error("Timeline snapshot query fault: ", error);
                 });
         }
 
-        // --- DEEP LINK SMART ROUTER ---
-        function parseActionLauncherShortcuts(text) {
-            const container = document.getElementById('external-route-actions');
-            try {
-                const typeMatch = text.match(/\[(.*?)\]/);
-                if (!typeMatch) return;
+        function openChatInterface() {
+            document.getElementById('chat-interface').classList.add('active');
+            loadChatHistory();
+        }
+
+        function closeChatInterface() {
+            document.getElementById('chat-interface').classList.remove('active');
+        }
+
+        function appendSystemMessage(text) {
+            const stream = document.getElementById('chat-box-stream');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper system msg-system';
+            wrapper.innerHTML = `
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-meta status-seen">${uiDictionary[currentLanguage].lblSeen}</div>
+            `;
+            stream.appendChild(wrapper);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function appendUserMessage(text) {
+            const stream = document.getElementById('chat-box-stream');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'msg-wrapper user msg-user';
+            wrapper.innerHTML = `
+                <div class="msg-bubble">${text}</div>
+                <div class="msg-meta">${uiDictionary[currentLanguage].lblSent} <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            `;
+            stream.appendChild(wrapper);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function renderCustomizerForm() {
+            const dict = uiDictionary[currentLanguage];
+            const stream = document.getElementById('chat-box-stream');
+            
+            if (document.getElementById('embedded-customizer-form')) return;
+
+            const formBox = document.createElement('div');
+            formBox.className = 'chat-form-box';
+            formBox.id = 'embedded-customizer-form';
+            
+            let dayChips = '';
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            const formatDay = (date, labelKey) => {
+                const d = date.getDate();
+                const m = dict.months[date.getMonth()];
+                return `<div class="luxury-chip calendar-bubble" onclick="selectFormParam(this, 'day', '${d} ${m}')"><span>${d}</span><span class="sub-month">${dict[labelKey] || m}</span></div>`;
+            };
+
+            dayChips += formatDay(today, 'dayToday');
+            dayChips += formatDay(tomorrow, 'dayTomorrow');
+            
+            for(let i=2; i<6; i++) {
+                let nextDate = new Date();
+                nextDate.setDate(today.getDate() + i);
+                dayChips += formatDay(nextDate, '');
+            }
+
+            formBox.innerHTML = `
+                <h4>${dict.paramTitle}</h4>
+                <div class="chat-form-group">
+                    <label>${dict.mDay}</label>
+                    <div class="chip-flex-row">${dayChips}</div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mTime}</label>
+                    <div class="chip-flex-row">
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '09:00 AM')">09:00 AM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '12:00 PM')">12:00 PM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '15:00 PM')">15:00 PM</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'time', '18:00 PM')">18:00 PM</div>
+                    </div>
+                </div>
+                <div class="chat-form-group">
+                    <label>${dict.mRiders}</label>
+                    <div class="chip-flex-row">
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '1')">${dict.riderSingle}</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '2')">2</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '3')">3</div>
+                        <div class="luxury-chip" onclick="selectFormParam(this, 'riders', '4+')">4+</div>
+                    </div>
+                </div>
+            `;
+            stream.appendChild(formBox);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function selectFormParam(element, type, value) {
+            const row = element.parentElement;
+            row.querySelectorAll('.luxury-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            
+            if(type === 'day') chosenDay = value;
+            if(type === 'time') chosenTime = value;
+            if(type === 'riders') chosenRiders = value;
+
+            if(chosenDay && chosenTime && chosenRiders) {
+                const tourName = selectedTourKey && tourDatabase[selectedTourKey] ? tourDatabase[selectedTourKey][currentLanguage].title : "Custom Tour";
+                const summary = `${tourName} 🐎 [${chosenDay} @ ${chosenTime}] → ${chosenRiders} Rider(s).`;
                 
-                const messengerType = typeMatch[1]; 
-                const phoneNum = text.split(']').pop().trim();   
+                const targetForm = document.getElementById('embedded-customizer-form');
+                if (targetForm) targetForm.remove();
                 
-                if (messengerType === 'WhatsApp') {
-                    const cleanPhone = phoneNum.replace(/[^0-9]/g, '');
-                    container.innerHTML = `
-                        <a href="https://wa.me/${cleanPhone}" target="_blank" class="action-chip-btn whatsapp">
-                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-4.846c1.66.986 3.295 1.494 5.348 1.495 5.482 0 9.943-4.44 9.947-9.925.002-2.657-1.02-5.155-2.877-7.015s-4.343-2.88-6.999-2.88c-5.49 0-9.953 4.441-9.957 9.925a9.895 9.895 0 0 0 1.51 5.06l-.183.668-.94 3.433 3.517-.923zm13.102-7.404c-.31-.154-1.834-.905-2.119-1.008-.285-.104-.493-.154-.7.154-.207.31-.803.104-.984.154s-.362-.051-.672-.206c-1.307-.656-2.129-1.636-2.387-2.08-.259-.444-.028-.684.195-.905.2-.199.44-.515.66-.773.22-.258.293-.44.44-.734.146-.294.073-.55-.036-.757-.109-.207-.7-.154-1.285-.154z"/></svg>
-                            Open WhatsApp (${phoneNum})
-                        </a>
-                    `;
+                // --- FIX 3: RE-STAMP PARENT DATA STRUCT TEMPORAL MARKER ON SUBMIT ---
+                if (window.db) {
+                    window.db.collection("conversations").doc(chatId).set({
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastMessage: summary
+                    }, { merge: true }).then(() => {
+                        window.db.collection("conversations").doc(chatId).collection("messages").add({
+                            text: summary,
+                            sender: "user",
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
                 }
-            } catch(e) {
-                console.log("No deep link pattern match.");
+                
+                setTimeout(() => {
+                    document.getElementById('contact-popup').classList.add('active');
+                }, 800);
             }
         }
 
-        // --- OUTBOUND MESSAGE DISPATCH ENGINE ---
-        function dispatchOwnerReply() {
-            const input = document.getElementById('owner-reply-field');
-            const txt = input.value.trim();
-            if(!txt || !activeRoomId) return;
-
-            db.collection("conversations").doc(activeRoomId).set({ 
-                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-                lastMessage: txt 
-            }, { merge: true });
-
-            db.collection("conversations").doc(activeRoomId).collection("messages").add({
-                text: txt,
-                sender: "owner",
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            input.value = '';
+        function selectMessengerTag(btn, messenger) {
+            document.querySelectorAll('.tag-btn').forEach(t => t.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedMessenger = messenger;
         }
 
-        function exitWorkspaceDetail() {
-            document.getElementById('detail-workspace').classList.remove('active');
+        function submitContactPopup() {
+            const phoneVal = document.getElementById('popup-phone-field').value.trim();
+            if(!phoneVal) return;
+            
+            const payloadText = `Lead Contact Point: [${selectedMessenger}] ${phoneVal}`;
+            if (window.db) {
+                window.db.collection("conversations").doc(chatId).set({ 
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessage: payloadText
+                }, { merge: true }).then(() => {
+                    window.db.collection("conversations").doc(chatId).collection("messages").add({
+                        text: payloadText,
+                        sender: "user",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+            }
+            
+            dismissContactPopup();
+        }
+
+        function dismissContactPopup() {
+            document.getElementById('contact-popup').classList.remove('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-custom-message');
+            const txt = input.value.trim();
+            if(!txt) return;
+            
+            input.value = '';
+
+            // --- FIX 3: SYNC PARENT DOCUMENT TIMESTAMP BEFORE PUSHING TEXT MESSAGE ---
+            if (window.db) {
+                window.db.collection("conversations").doc(chatId).set({
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessage: txt
+                }, { merge: true }).then(() => {
+                    window.db.collection("conversations").doc(chatId).collection("messages").add({
+                        text: txt,
+                        sender: "user",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+            } else {
+                appendUserMessage(txt);
+                setTimeout(() => {
+                    appendSystemMessage(currentLanguage === 'ka' ? "შეტყობინება მიღებულია!" : "Got your notes!");
+                }, 1000);
+            }
         }
     </script>
 </body>
